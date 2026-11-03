@@ -142,6 +142,11 @@ details.volet>summary::before{content:'▸';color:var(--c);transition:transform 
 details.volet[open]>summary::before{transform:rotate(90deg)}
 details.volet>summary small{font-weight:400;font-size:13px;color:var(--muted)}
 .vbody{padding:0 14px 14px}
+.scorewrap{overflow-x:auto;background:#0d0f13;border:1px solid var(--line);border-radius:10px;padding:6px}
+#score{display:block;width:100%;min-width:620px;height:auto}
+.legend{list-style:none;padding:0!important;columns:2 260px}
+.legend li{margin:3px 0}
+.legend .dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px}
 .vbody .card{border-top:0;padding:4px 0 0;background:none;border:0}
 footer{max-width:1240px;margin:0 auto;padding:0 18px;color:var(--muted);font-size:12px}
 footer a{color:inherit}
@@ -211,6 +216,26 @@ footer a{color:inherit}
         <p><b>Copier le lien</b> donne une adresse qui contient tout le rythme et les réglages des sons : pratique pour envoyer un exercice à des élèves.</p>
       </details>
       </section>
+    </div>
+  </details>
+
+  <details class="volet" id="v-part" style="--c:#c792ea">
+    <summary>Partition <small>le rythme en notation de batterie</small></summary>
+    <div class="vbody">
+      <p class="sub" style="color:var(--muted);font-size:13px;margin:0 0 8px">La partition s'écrit toute seule à partir du séquenceur. Les têtes de notes ont la couleur des pads.</p>
+      <div class="scorewrap"><svg id="score" viewBox="0 0 900 222" role="img" aria-label="Partition de batterie du rythme"></svg></div>
+      <details class="help" style="--c:#c792ea"><summary>Lire une partition de batterie</summary>
+        <p>En batterie, la portée ne donne pas des hauteurs de notes : <b>chaque ligne ou interligne correspond à un instrument</b>. La clé de percussion (les deux petits traits verticaux) le rappelle.</p>
+        <ul>
+          <li><b>Hampes vers le haut</b> : ce que jouent les mains (caisse claire, charley, toms, cymbales). <b>Hampes vers le bas</b> : ce que joue le pied (grosse caisse).</li>
+          <li><b>Têtes rondes</b> pour les peaux (caisse claire, toms, grosse caisse), <b>croix</b> pour les cymbales et le métal.</li>
+          <li>Les durées sont celles de la FM : <b>noire</b>, <b>croche</b> (un crochet ou une barre), <b>double croche</b> (deux crochets ou deux barres), <b>croche pointée</b>. Les silences : <b>soupir</b> (un temps), <b>demi-soupir</b>, <b>quart de soupir</b>.</li>
+          <li><b>&gt;</b> au-dessus d'une note : un <b>accent</b>. Un petit <b>o</b> au-dessus du charley : il est <b>ouvert</b>.</li>
+          <li>Les barres de <b>reprise</b> au début et à la fin : la mesure tourne en boucle, comme dans le séquenceur.</li>
+        </ul>
+        <p>Essaie : ajoute ou enlève une case dans le séquenceur et regarde comment les durées et les silences changent sur la partition.</p>
+        <ul id="score-legend" class="legend"></ul>
+      </details>
     </div>
   </details>
 
@@ -663,7 +688,7 @@ function paintAll(){ for(let r=0;r<ROWS;r++) for(let j=0;j<16;j++) paintCell(r,j
 let nowCol=-1;
 function setNow(j){
   if(nowCol>=0){ cntEls[nowCol].classList.remove('now'); for(let r=0;r<ROWS;r++) cellEls[r][nowCol].classList.remove('now'); }
-  nowCol=j;
+  nowCol=j; scoreNow(j);
   if(j>=0){ cntEls[j].classList.add('now'); for(let r=0;r<ROWS;r++) cellEls[r][j].classList.add('now'); }
 }
 
@@ -813,7 +838,7 @@ function copyLink(){
   try{ navigator.clipboard.writeText(url).then(ok,ko); }catch(e){ ko(); }
 }
 const KEY='drum-pad-v1'; let saveT=null;
-function save(){ clearTimeout(saveT); saveT=setTimeout(()=>{ try{ localStorage.setItem(KEY,JSON.stringify({q:encode(),preset:S.preset,metro:S.metro,master:S.master,sel:S.sel})); }catch(e){} },300); }
+function save(){ drawScore(); clearTimeout(saveT); saveT=setTimeout(()=>{ try{ localStorage.setItem(KEY,JSON.stringify({q:encode(),preset:S.preset,metro:S.metro,master:S.master,sel:S.sel})); }catch(e){} },300); }
 function restore(){
   if(location.hash.length>2 && decode(location.hash.slice(1))){ try{ history.replaceState(null,'',location.pathname); }catch(e){} return true; }
   try{ const o=JSON.parse(localStorage.getItem(KEY)||'null'); if(o && decode(o.q)){ S.preset=o.preset in PRESETS ? o.preset : null; S.metro=!!o.metro; if(o.master>=0&&o.master<=1){ S.master=o.master; master.gain.value=o.master; } if(o.sel>=0&&o.sel<ROWS) S.sel=o.sel; return true; } }catch(e){}
@@ -841,18 +866,143 @@ function setKit(k){ if(!KITS[k]) return; S.kit=k; SP=SPK[k]; openHats=[]; select
 $('kitSel').addEventListener('change',e=>{ setKit(e.target.value); audioOn(); play(S.sel,AC.currentTime+.01,.9); flash(S.sel); });
 
 /* --- volets --- */
-const vSeq=$('v-seq'), vSnd=$('v-snd');
-function voletsState(){ document.body.classList.toggle('seqopen',vSeq.open); $('seqBtn').setAttribute('aria-pressed',vSeq.open); try{ localStorage.setItem('drum-pad-volets',JSON.stringify({seq:vSeq.open,snd:vSnd.open})); }catch(e){} }
-vSeq.addEventListener('toggle',voletsState);
+const vSeq=$('v-seq'), vSnd=$('v-snd'), vPart=$('v-part');
+function voletsState(){ document.body.classList.toggle('seqopen',vSeq.open||vPart.open); $('seqBtn').setAttribute('aria-pressed',vSeq.open); try{ localStorage.setItem('drum-pad-volets',JSON.stringify({seq:vSeq.open,snd:vSnd.open,part:vPart.open})); }catch(e){} }
+vSeq.addEventListener('toggle',voletsState); vPart.addEventListener('toggle',()=>{ voletsState(); if(vPart.open) renderScore(); });
 vSnd.addEventListener('toggle',()=>{ voletsState(); if(vSnd.open){ if(wave) wave.cols=null; drawWave(); } });
 $('seqBtn').addEventListener('click',()=>{ vSeq.open=!vSeq.open; if(vSeq.open) setTimeout(()=>vSeq.scrollIntoView({behavior:'smooth',block:'start'}),50); });
-try{ const o=JSON.parse(localStorage.getItem('drum-pad-volets')||'null'); if(o){ vSeq.open=!!o.seq; vSnd.open=!!o.snd; } }catch(e){}
+try{ const o=JSON.parse(localStorage.getItem('drum-pad-volets')||'null'); if(o){ vSeq.open=!!o.seq; vSnd.open=!!o.snd; vPart.open=!!o.part; } }catch(e){}
 voletsState();
+
+/* ================= PARTITION ================= */
+// position sur la portée : 0 = 1re ligne (en bas), 1 = 1er interligne, ... 8 = 5e ligne, 9 = au-dessus, 10 = 1re ligne supplémentaire
+const NOTA = {
+  kick:{pos:1, head:'n', voice:2, place:'1er interligne, hampe vers le bas (le pied)'},
+  toml:{pos:3, head:'n', voice:1, place:'2e interligne'},
+  snare:{pos:5, head:'n', voice:1, place:'3e interligne'},
+  rim:{pos:5, head:'xo', voice:1, place:'3e interligne, croix entourée'},
+  clap:{pos:6, head:'x', voice:1, place:'4e ligne, croix'},
+  tomh:{pos:7, head:'n', voice:1, place:'4e interligne'},
+  bell:{pos:8, head:'t', voice:1, place:'5e ligne, triangle'},
+  hhc:{pos:9, head:'x', voice:1, place:'au-dessus de la portée, croix'},
+  hho:{pos:9, head:'x', open:true, voice:1, place:'au-dessus de la portée, croix + « o » (ouvert)'},
+  crash:{pos:10, head:'x', voice:1, place:'ligne supplémentaire, croix'},
+};
+const SC = {W:900, sp:12, y0:82, x0:16, ns:118, xe:870};
+SC.cell=(SC.xe-SC.ns)/16;
+const yPos=p=>SC.y0+4*SC.sp-p*SC.sp/2;
+const xStep=j=>SC.ns+j*SC.cell+SC.cell*.35;
+function svgEl(tag,attrs,parent){ const e=document.createElementNS('http://www.w3.org/2000/svg',tag); for(const k in attrs) e.setAttribute(k,attrs[k]); if(parent) parent.appendChild(e); return e; }
+// découpe d'une voix (tableau de 16 cases : null ou liste de notes) en temps : silences en début de temps, puis notes avec leur durée
+function voiceEvents(cols){
+  const ev=[];
+  for(let b=0;b<4;b++){
+    const on=[]; for(let k=0;k<4;k++) if(cols[b*4+k]) on.push(b*4+k);
+    if(!on.length){ ev.push({rest:4,step:b*4,beat:b}); continue; }
+    const lead=on[0]-b*4;
+    if(lead===3){ ev.push({rest:2,step:b*4,beat:b}); ev.push({rest:1,step:b*4+2,beat:b}); }
+    else if(lead>0) ev.push({rest:lead,step:b*4,beat:b});
+    on.forEach((j,i)=>{ const nxt= i<on.length-1 ? on[i+1] : b*4+4; ev.push({step:j,dur:nxt-j,notes:cols[j],beat:b}); });
+  }
+  return ev;
+}
+function drawRest(g,x,yc,d,col){
+  const st={stroke:col,'stroke-width':2,fill:'none','stroke-linecap':'round','stroke-linejoin':'round'};
+  if(d===4){ svgEl('path',{...st,'stroke-width':2.6,d:`M${x-2} ${yc-16} L${x+4} ${yc-8} L${x-2} ${yc-1} L${x+4} ${yc+6} C${x-4} ${yc+3} ${x-4} ${yc+11} ${x+2} ${yc+15}`},g); return; }
+  const flag=(cy)=>{ svgEl('circle',{cx:x-3,cy:cy,r:2.8,fill:col},g); svgEl('path',{...st,d:`M${x-3} ${cy+1} Q${x+1} ${cy+2} ${x+5} ${cy-3}`},g); };
+  flag(yc-5); if(d===1){ flag(yc+2); svgEl('path',{...st,d:`M${x+5} ${yc-3} L${x-2} ${yc+13}`},g); } else svgEl('path',{...st,d:`M${x+5} ${yc-3} L${x} ${yc+9}`},g);
+}
+function drawHead(g,x,p,head,col){
+  const y=yPos(p);
+  if(p>=10){ svgEl('line',{x1:x-9,x2:x+9,y1:yPos(10),y2:yPos(10),stroke:'#c8ccd4','stroke-width':1.3},g); }
+  if(head==='n') svgEl('ellipse',{cx:x,cy:y,rx:6.4,ry:4.6,transform:`rotate(-20 ${x} ${y})`,fill:col},g);
+  else if(head==='t') svgEl('path',{d:`M${x-5.5} ${y+4.5} L${x+5.5} ${y+4.5} L${x} ${y-5} Z`,fill:col},g);
+  else { const st={stroke:col,'stroke-width':2.2,'stroke-linecap':'round'}; svgEl('line',{...st,x1:x-4.6,y1:y-4.6,x2:x+4.6,y2:y+4.6},g); svgEl('line',{...st,x1:x-4.6,y1:y+4.6,x2:x+4.6,y2:y-4.6},g);
+    if(head==='xo') svgEl('circle',{cx:x,cy:y,r:7.5,fill:'none',stroke:col,'stroke-width':1.4},g); }
+}
+function drawVoice(g,ev,up){
+  const sp=SC.sp, stemC='#c8ccd4';
+  const chords=ev.filter(e=>!e.rest);
+  // têtes + calcul des extrémités
+  chords.forEach(e=>{
+    const ps=e.notes.map(n=>({...NOTA[n.id],id:n.id,acc:n.acc,col:SND[IDX[n.id]].col})).sort((a,b)=>a.pos-b.pos);
+    e.x=xStep(e.step); e.lo=ps[0].pos; e.hi=ps[ps.length-1].pos;
+    let prev=null, prevShift=false;
+    ps.forEach(n=>{ let dx=0; if(prev && n.pos-prev.pos===1 && !prevShift){ dx=up?12:-12; prevShift=true; } else prevShift=false;
+      if(prev && n.pos===prev.pos) dx=prev.dx; n.dx=dx; prev=n; drawHead(g,e.x+dx,n.pos,n.head,n.col);
+      if(e.dur===3){ const dy=(n.pos%2===0)?-sp/2:0; svgEl('circle',{cx:e.x+dx+11,cy:yPos(n.pos)+dy,r:2,fill:stemC},g); } });
+    e.ps=ps; e.acc=ps.some(n=>n.acc); e.open=ps.some(n=>NOTA[n.id].open);
+  });
+  // regroupement par temps pour les ligatures
+  const groups={}; chords.forEach(e=>{ (groups[e.beat]=groups[e.beat]||[]).push(e); });
+  Object.values(groups).forEach(grp=>{
+    const beamed=grp.length>1 && grp.every(e=>e.dur<4);
+    let end;
+    if(up){ end = beamed ? Math.min(...grp.map(e=>yPos(e.hi)))-3.3*sp : null; }
+    else { end = beamed ? Math.max(...grp.map(e=>yPos(e.lo)))+3.3*sp : null; }
+    grp.forEach(e=>{
+      const sx= up? e.x+5.9 : e.x-5.9;
+      const tip= beamed? end : (up? yPos(e.hi)-3.3*sp : yPos(e.lo)+3.3*sp);
+      e.sx=sx; e.tip=tip;
+      svgEl('line',{x1:sx,x2:sx,y1:up?yPos(e.lo):yPos(e.hi),y2:tip,stroke:stemC,'stroke-width':1.5},g);
+      if(!beamed && e.dur<4){ // crochets
+        const n= e.dur===1?2:1;
+        for(let k=0;k<n;k++){ const y=tip+(up?k*7:-k*7); svgEl('path',{d: up?`M${sx} ${y} C${sx+2} ${y+8} ${sx+12} ${y+10} ${sx+8} ${y+20}`:`M${sx} ${y} C${sx+2} ${y-8} ${sx+12} ${y-10} ${sx+8} ${y-20}`,fill:'none',stroke:stemC,'stroke-width':2},g); }
+      }
+      // accent et « o »
+      let ay= up? Math.min(tip,yPos(e.hi))-9 : Math.max(tip,yPos(e.lo))+11;
+      if(e.open && up){ svgEl('circle',{cx:e.x,cy:ay,r:3.5,fill:'none',stroke:'#ece9e2','stroke-width':1.4},g); ay-=11; }
+      if(e.acc) svgEl('path',{d:`M${e.x-6} ${ay-4} L${e.x+6} ${ay} L${e.x-6} ${ay+4}`,fill:'none',stroke:'#ece9e2','stroke-width':1.6},g);
+    });
+    if(beamed){
+      const th=5, off=up?8:-8, by=up?end:end-th;
+      svgEl('rect',{x:grp[0].sx-.75,y:by,width:grp[grp.length-1].sx-grp[0].sx+1.5,height:th,fill:stemC},g);
+      grp.forEach((e,i)=>{ if(e.dur!==1) return; const L=i>0&&grp[i-1].dur===1, R=i<grp.length-1&&grp[i+1].dur===1;
+        let x1,x2; if(R){ x1=e.sx; x2=grp[i+1].sx; } else if(!L){ if(i<grp.length-1){ x1=e.sx; x2=e.sx+10; } else { x1=e.sx-10; x2=e.sx; } } else return;
+        svgEl('rect',{x:x1-.75,y:by+off,width:x2-x1+1.5,height:th,fill:stemC},g); });
+    }
+  });
+  // silences
+  ev.filter(e=>e.rest).forEach(e=>drawRest(g,xStep(e.step)+2,up?yPos(7):yPos(1),e.rest,'#c8ccd4'));
+}
+let scoreRaf=null;
+function drawScore(){ if(scoreRaf) return; scoreRaf=requestAnimationFrame(()=>{ scoreRaf=null; renderScore(); }); }
+function renderScore(){
+  const svg=$('score'); if(!svg) return; svg.innerHTML='';
+  const sp=SC.sp, top=SC.y0, bot=SC.y0+4*sp, txt='#ece9e2', mut='#9aa1ad';
+  svgEl('rect',{id:'score-now',x:0,y:top-34,width:SC.cell,height:4*sp+58,fill:'rgba(245,166,35,.16)',rx:4,visibility:'hidden'},svg);
+  for(let i=0;i<5;i++) svgEl('line',{x1:SC.x0,x2:SC.xe+14,y1:top+i*sp,y2:top+i*sp,stroke:'#8a909b','stroke-width':1.1},svg);
+  // clé de percussion, chiffrage, reprises
+  svgEl('rect',{x:SC.x0+12,y:top+sp,width:4,height:2*sp,fill:txt},svg); svgEl('rect',{x:SC.x0+20,y:top+sp,width:4,height:2*sp,fill:txt},svg);
+  ['4','4'].forEach((n,i)=>{ const t=svgEl('text',{x:SC.x0+48,y:top+sp*(1.75+i*2),'text-anchor':'middle','font-size':27,'font-weight':700,'font-family':'Georgia,serif',fill:txt},svg); t.textContent=n; });
+  const rep=(x,left)=>{ const thick=left?x:x+8, thin=left?x+8:x; svgEl('rect',{x:thick,y:top,width:4,height:4*sp,fill:txt},svg); svgEl('line',{x1:thin+.5,x2:thin+.5,y1:top,y2:bot,stroke:txt,'stroke-width':1.3},svg);
+    const dx=left?x+15:x-6; [1.5,2.5].forEach(k=>svgEl('circle',{cx:dx,cy:top+k*sp,r:2.2,fill:txt},svg)); };
+  rep(SC.x0+70,true); rep(SC.xe+2,false);
+  for(let b=1;b<4;b++){} // pas de barre à l'intérieur de la mesure
+  // tempo et indication de swing
+  const tt=svgEl('text',{x:SC.x0,y:18,'font-size':15,fill:txt,'font-family':'Space Grotesk,system-ui,sans-serif'},svg);
+  let sw=''; if(S.swing>=.99) sw= S.res===8?'  ·  croches ternaires (shuffle)':'  ·  doubles croches ternaires'; else if(S.swing>=.05) sw=(S.res===8?'  ·  croches swinguées (':'  ·  doubles croches swinguées (')+Math.round(S.swing*100)+' %)';
+  tt.textContent='♩ = '+S.bpm+sw;
+  // voix
+  const c1=Array(16).fill(null), c2=Array(16).fill(null);
+  SND.forEach((s,r)=>{ for(let j=0;j<16;j++) if(pat[r][j]){ const col= NOTA[s.id].voice===2?c2:c1; (col[j]=col[j]||[]).push({id:s.id,acc:pat[r][j]===2}); } });
+  const has1=c1.some(Boolean), has2=c2.some(Boolean), g=svgEl('g',{},svg);
+  if(!has1 && !has2){ const x=(SC.ns+SC.xe)/2; svgEl('rect',{x:x-9,y:top+sp,width:18,height:sp/2,fill:'#c8ccd4'},g); }
+  if(has1) drawVoice(g,voiceEvents(c1),true);
+  if(has2) drawVoice(g,voiceEvents(c2),false);
+  // comptage
+  COUNT.forEach((w,j)=>{ const t=svgEl('text',{x:xStep(j),y:bot+80,'text-anchor':'middle','font-size':j%4===0?15:12,'font-weight':j%4===0?700:400,fill:j%4===0?txt:mut,'font-family':'JetBrains Mono,monospace'},svg); t.textContent=w; });
+  scoreNow(nowCol);
+}
+function scoreNow(j){ const r=document.getElementById('score-now'); if(!r) return; if(j<0){ r.setAttribute('visibility','hidden'); return; } r.setAttribute('x',SC.ns+j*SC.cell-SC.cell*.1); r.setAttribute('visibility','visible'); }
+function buildLegend(){
+  $('score-legend').innerHTML=SND.map(s=>`<li><span class="dot" style="background:${s.col}"></span><b>${s.nom}</b> : ${NOTA[s.id].place}</li>`).join('');
+}
 
 /* ================= DÉMARRAGE ================= */
 buildPads(); buildSeq(); buildPresets(); buildSeqControls();
 if(!restore()) loadPreset('rock');
-paintAll(); refreshControls(); select(S.sel);
+paintAll(); refreshControls(); select(S.sel); buildLegend(); renderScore();
 if(AC.state!=='running') $('startnote').classList.add('show');
 document.addEventListener('pointerdown',()=>{ if(AC.state!=='running') AC.resume(); },{once:true});
 requestAnimationFrame(frame);
