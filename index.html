@@ -19,8 +19,8 @@
 }
 *{box-sizing:border-box}
 html,body{margin:0;background:var(--bg);color:var(--text);font-family:'Space Grotesk',system-ui,sans-serif;-webkit-tap-highlight-color:transparent}
-body{padding-bottom:210px}
-header{padding:20px 18px 6px;max-width:1240px;margin:0 auto}
+body{padding-bottom:30px}
+header{padding:14px 18px 4px;max-width:1240px;margin:0 auto}
 h1{font-size:clamp(22px,4vw,32px);margin:0 0 4px;letter-spacing:-.01em}
 h1 span{color:var(--acc)}
 .htop{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
@@ -108,24 +108,39 @@ canvas{display:block;width:100%;background:#0d0f13;border:1px solid var(--line);
 .cv-wave{height:150px}
 
 /* pads */
-.padwrap{position:fixed;left:0;right:0;bottom:0;background:linear-gradient(180deg,rgba(18,20,25,.88),#121419 30%);backdrop-filter:blur(6px);border-top:1px solid var(--line);padding:8px 10px calc(10px + env(safe-area-inset-bottom));z-index:10}
-.pbar{max-width:900px;margin:0 auto 7px;display:flex;align-items:center;gap:7px;flex-wrap:wrap;font-size:13px;color:var(--muted)}
-.pbar button{background:var(--panel2);border:1px solid var(--line);color:var(--text);border-radius:8px;padding:6px 11px;font:inherit;font-size:13px;cursor:pointer}
-#playBtn{min-width:96px;font-weight:600}
+.padwrap{max-width:1240px;margin:0 auto;padding:0 14px}
+.pbarwrap{position:sticky;top:0;z-index:10;background:var(--bg);border-bottom:1px solid transparent}
+.pbar{max-width:1240px;margin:0 auto;padding:8px 14px;display:flex;align-items:center;gap:7px;flex-wrap:wrap;font-size:13px;color:var(--muted)}
+.pbar button{background:var(--panel2);border:1px solid var(--line);color:var(--text);border-radius:9px;padding:8px 13px;font:inherit;font-size:14px;cursor:pointer}
+#playBtn{min-width:110px;font-weight:600}
 #playBtn.on{border-color:var(--seq);color:var(--seq)}
 #recBtn.on{border-color:var(--acc);color:#121419;background:var(--acc)}
-.pbar .bpm{font-family:var(--mono);color:var(--text);min-width:64px;text-align:center}
+.pbar .bpm{font-family:var(--mono);color:var(--text);min-width:64px;text-align:center;font-size:14px}
 .pbar .hint{margin-left:auto}
+#seqBtn[aria-pressed=true]{border-color:var(--seq);color:var(--seq)}
 @media (hover:none){.pbar .hint,.pad .ck{display:none}}
-.startnote{display:none;background:var(--acc);color:#121419;border-radius:8px;padding:5px 10px;font-weight:600}
+.startnote{display:none;background:var(--acc);color:#121419;border-radius:8px;padding:6px 10px;font-weight:600}
 .startnote.show{display:inline-block}
-.pads{max-width:900px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr);gap:7px;touch-action:none;user-select:none;-webkit-user-select:none}
-.pad{--c:#888;height:60px;border-radius:12px;background:linear-gradient(#2b2f39,#1d2028);border:1px solid var(--line);border-bottom:4px solid var(--c);color:var(--text);font:inherit;font-size:13px;font-weight:500;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:2px;transition:background .12s,transform .05s;touch-action:none}
-.pad .ck{font-family:var(--mono);font-size:10px;color:var(--muted)}
+.pads{height:75vh;height:75dvh;min-height:300px;display:grid;grid-template-columns:repeat(5,1fr);grid-template-rows:repeat(2,1fr);gap:10px;touch-action:none;user-select:none;-webkit-user-select:none;transition:height .25s}
+body.seqopen .pads{height:42vh;height:42dvh;min-height:240px}
+@media (orientation:portrait){.pads{grid-template-columns:repeat(2,1fr);grid-template-rows:repeat(5,1fr);grid-auto-flow:column}}
+.pad{--c:#888;min-height:0;border-radius:16px;background:linear-gradient(#2b2f39,#1d2028);border:1px solid var(--line);border-bottom:6px solid var(--c);color:var(--text);font:inherit;font-size:clamp(15px,2.3vw,24px);font-weight:600;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:4px;transition:background .12s,transform .05s;touch-action:none}
+.pad .ck{font-family:var(--mono);font-size:12px;color:var(--muted);font-weight:400}
 .pad.sel{box-shadow:inset 0 0 0 2px color-mix(in srgb,var(--c) 70%,transparent)}
-.pad.hit{background:var(--c);color:#121419;transform:scale(.96);transition:none}
+.pad.hit{background:var(--c);color:#121419;transform:scale(.97);transition:none}
 .pad.hit .ck{color:#121419}
-@media (max-width:520px){.pad{height:54px;font-size:12px}.pbar button{padding:6px 9px}}
+@media (max-width:520px){.pbar button{padding:7px 10px}.pbar .bpm{min-width:56px}}
+
+/* volets */
+.volets{max-width:1240px;margin:0 auto;padding:12px 14px 20px;display:flex;flex-direction:column;gap:10px}
+details.volet{--c:var(--seq);scroll-margin-top:64px;background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--c);border-radius:14px}
+details.volet>summary{list-style:none;cursor:pointer;padding:14px 16px;font-size:18px;font-weight:700;display:flex;align-items:center;gap:10px}
+details.volet>summary::-webkit-details-marker{display:none}
+details.volet>summary::before{content:'▸';color:var(--c);transition:transform .2s;display:inline-block}
+details.volet[open]>summary::before{transform:rotate(90deg)}
+details.volet>summary small{font-weight:400;font-size:13px;color:var(--muted)}
+.vbody{padding:0 14px 14px}
+.vbody .card{border-top:0;padding:4px 0 0;background:none;border:0}
 footer{max-width:1240px;margin:0 auto;padding:0 18px;color:var(--muted);font-size:12px}
 footer a{color:inherit}
 </style>
@@ -133,20 +148,33 @@ footer a{color:inherit}
 <body>
 <header>
   <div class="htop"><h1>Drum pad <span>pédagogique</span></h1><button id="install" hidden>Installer l'appli</button></div>
-  <p class="lead">Tape sur les <b>pads</b> en bas pour jouer, puis construis un rythme dans le <b>séquenceur</b>. Chaque son est fabriqué en direct, comme sur une vraie boîte à rythmes : choisis-en un pour voir sa <b>recette</b> et changer ses réglages.</p>
+  <p class="lead">Tape sur les <b>pads</b> pour jouer. Ouvre le <b>séquenceur</b> pour construire un rythme, et le <b>réglage du son</b> pour voir comment chaque son est fabriqué.</p>
 </header>
 
-<main>
-  <section class="presets" aria-label="Rythmes de départ">
-    <h2>Rythmes de départ</h2>
-    <div class="pbtns" id="presets"></div>
-    <p class="pdesc" id="pdesc"></p>
-  </section>
+<div class="pbarwrap"><div class="pbar">
+    <button id="playBtn" aria-pressed="false">▶ Lecture</button>
+    <button id="bpmDown" aria-label="Tempo plus lent">−</button>
+    <span class="bpm" id="bpmLbl">100 bpm</span>
+    <button id="bpmUp" aria-label="Tempo plus rapide">+</button>
+    <button id="recBtn" aria-pressed="false">● Enregistrer</button>
+    <button id="seqBtn" aria-pressed="false">Séquenceur</button>
+    <span class="startnote" id="startnote">Touche un pad pour activer le son</span>
+    <span class="hint">Clavier : A Z E R T / Q S D F G · Espace = lecture</span>
+  </div></div>
+<div class="padwrap">
+  <div class="pads" id="pads" aria-label="Pads de batterie"></div>
+</div>
 
-  <div class="grid">
-    <!-- SÉQUENCEUR -->
-    <section class="card" id="m-seq" style="--c:var(--seq)">
-      <h2><span class="num">1</span> Séquenceur</h2>
+<main class="volets">
+  <details class="volet" id="v-seq" style="--c:var(--seq)">
+    <summary>Séquenceur <small>rythmes de départ, grille, tempo, swing</small></summary>
+    <div class="vbody">
+      <section class="presets" aria-label="Rythmes de départ" style="margin-top:0">
+        <h2>Rythmes de départ</h2>
+        <div class="pbtns" id="presets"></div>
+        <p class="pdesc" id="pdesc"></p>
+      </section>
+      <section class="card" id="m-seq" style="--c:var(--seq)">
       <p class="sub">Une mesure à 4 temps, chaque temps coupé en 4 doubles croches. Touche une case : <b>note</b>, puis <b>accent</b> (&gt;), puis vide.</p>
       <div class="seqwrap"><div class="seq" id="seq"></div></div>
       <div class="two">
@@ -175,15 +203,18 @@ footer a{color:inherit}
           <li><b>Charley</b> : il découpe le temps en croches ou en doubles croches, c'est l'horloge du groupe.</li>
           <li><b>Accent</b> (&gt;) : la note est jouée plus fort. Joue un charley avec un accent sur chaque temps, puis sans : le groove change.</li>
           <li><b>Swing</b> : à 0 %, tout est régulier (binaire). En montant, la deuxième croche (ou double croche) de chaque paire arrive plus tard. À 100 %, elle tombe sur le dernier tiers du temps : c'est le <b>ternaire</b> du blues et du jazz.</li>
-          <li><b>Enregistrer</b> (en bas) : pendant la lecture, ce que tu joues sur les pads s'écrit tout seul dans la grille, recalé sur la case la plus proche.</li>
+          <li><b>Enregistrer</b> (au-dessus des pads) : pendant la lecture, ce que tu joues sur les pads s'écrit tout seul dans la grille, recalé sur la case la plus proche.</li>
         </ul>
         <p><b>Copier le lien</b> donne une adresse qui contient tout le rythme et les réglages des sons : pratique pour envoyer un exercice à des élèves.</p>
       </details>
-    </section>
+      </section>
+    </div>
+  </details>
 
-    <!-- SON SÉLECTIONNÉ -->
-    <section class="card" id="m-snd" style="--c:var(--snd)">
-      <h2><span class="num">2</span> <span id="snd-name">Son</span></h2>
+  <details class="volet" id="v-snd" style="--c:var(--snd)">
+    <summary>Réglage du son : <span id="snd-name">Son</span></summary>
+    <div class="vbody">
+      <section class="card" id="m-snd" style="--c:var(--snd)">
       <p class="sub">Touche un pad ou le nom d'une ligne pour choisir le son à régler.</p>
       <div class="recette" id="snd-recette"></div>
       <div class="lbl">Forme d'onde du son, du début à la fin</div>
@@ -202,23 +233,11 @@ footer a{color:inherit}
         </ul>
         <p>Une batterie électronique n'enregistre rien : elle <b>fabrique</b> chaque son avec les mêmes briques qu'un synthétiseur (oscillateurs, bruit, filtres, enveloppes). Pour explorer ces briques une par une, ouvre le <a href="https://mlevan8395.github.io/mini-synthe/">mini-synthé pédagogique</a>.</p>
       </details>
-    </section>
-  </div>
+      </section>
+    </div>
+  </details>
 </main>
 <footer><p>Drum pad pédagogique · Mickael Le Van · logiciel libre (<a href="https://github.com/MLeVan8395/drum-pad">code source</a>) · aucune donnée collectée. Au casque, la grosse caisse s'entend bien mieux.</p></footer>
-
-<div class="padwrap">
-  <div class="pbar">
-    <button id="playBtn" aria-pressed="false">▶ Lecture</button>
-    <button id="bpmDown" aria-label="Tempo plus lent">−</button>
-    <span class="bpm" id="bpmLbl">100 bpm</span>
-    <button id="bpmUp" aria-label="Tempo plus rapide">+</button>
-    <button id="recBtn" aria-pressed="false">● Enregistrer</button>
-    <span class="startnote" id="startnote">Touche un pad pour activer le son</span>
-    <span class="hint">Clavier : A Z E R T / Q S D F G · Espace = lecture</span>
-  </div>
-  <div class="pads" id="pads" aria-label="Pads de batterie"></div>
-</div>
 
 <script>
 /* ================= LES SONS ================= */
@@ -561,7 +580,7 @@ function select(i){
   Object.entries(padEls).forEach(([k,el])=>el.classList.toggle('sel',+k===i));
   lblEls.forEach((l,r)=>l.classList.toggle('sel',r===i));
   const s=SND[i];
-  $('m-snd').style.setProperty('--c',s.col);
+  $('m-snd').style.setProperty('--c',s.col); $('v-snd').style.setProperty('--c',s.col);
   $('snd-name').textContent=s.nom;
   $('snd-recette').innerHTML=s.recette.map(r=>`<span>${r}</span>`).join('<span class="plus">+</span>');
   $('snd-aide').innerHTML=s.aide;
@@ -674,6 +693,15 @@ $('bpmDown').addEventListener('click',()=>{ S.bpm=Math.max(50,S.bpm-2); slBpm.re
 $('bpmUp').addEventListener('click',()=>{ S.bpm=Math.min(180,S.bpm+2); slBpm.refresh(); updTransport(); save(); });
 $('listenBtn').addEventListener('click',()=>{ audioOn(); play(S.sel,AC.currentTime+.01,.9); flash(S.sel); });
 $('resetBtn').addEventListener('click',()=>{ SP[S.sel]=defParams(S.sel); markCustom(); select(S.sel); });
+
+/* --- volets --- */
+const vSeq=$('v-seq'), vSnd=$('v-snd');
+function voletsState(){ document.body.classList.toggle('seqopen',vSeq.open); $('seqBtn').setAttribute('aria-pressed',vSeq.open); try{ localStorage.setItem('drum-pad-volets',JSON.stringify({seq:vSeq.open,snd:vSnd.open})); }catch(e){} }
+vSeq.addEventListener('toggle',voletsState);
+vSnd.addEventListener('toggle',()=>{ voletsState(); if(vSnd.open){ if(wave) wave.cols=null; drawWave(); } });
+$('seqBtn').addEventListener('click',()=>{ vSeq.open=!vSeq.open; if(vSeq.open) setTimeout(()=>vSeq.scrollIntoView({behavior:'smooth',block:'start'}),50); });
+try{ const o=JSON.parse(localStorage.getItem('drum-pad-volets')||'null'); if(o){ vSeq.open=!!o.seq; vSnd.open=!!o.snd; } }catch(e){}
+voletsState();
 
 /* ================= DÉMARRAGE ================= */
 buildPads(); buildSeq(); buildPresets(); buildSeqControls();
