@@ -117,6 +117,8 @@ canvas{display:block;width:100%;background:#0d0f13;border:1px solid var(--line);
 #recBtn.on{border-color:var(--acc);color:#121419;background:var(--acc)}
 .pbar .bpm{font-family:var(--mono);color:var(--text);min-width:64px;text-align:center;font-size:14px}
 .pbar .hint{margin-left:auto}
+.kit{display:flex;align-items:center;gap:6px;color:var(--muted);font-size:14px}
+.kit select{background:var(--panel2);border:1px solid var(--line);color:var(--text);border-radius:9px;padding:8px 10px;font:inherit;font-size:14px;cursor:pointer}
 #seqBtn[aria-pressed=true]{border-color:var(--seq);color:var(--seq)}
 @media (hover:none){.pbar .hint,.pad .ck{display:none}}
 .startnote{display:none;background:var(--acc);color:#121419;border-radius:8px;padding:6px 10px;font-weight:600}
@@ -157,6 +159,7 @@ footer a{color:inherit}
     <span class="bpm" id="bpmLbl">100 bpm</span>
     <button id="bpmUp" aria-label="Tempo plus rapide">+</button>
     <button id="recBtn" aria-pressed="false">● Enregistrer</button>
+    <label class="kit">Kit <select id="kitSel" aria-label="Choix du kit"><option value="acou">Acoustique</option><option value="elec">Électronique</option><option value="bit">8 bits</option></select></label>
     <button id="seqBtn" aria-pressed="false">Séquenceur</button>
     <span class="startnote" id="startnote">Touche un pad pour activer le son</span>
     <span class="hint">Clavier : A Z E R T / Q S D F G · Espace = lecture</span>
@@ -212,10 +215,10 @@ footer a{color:inherit}
   </details>
 
   <details class="volet" id="v-snd" style="--c:var(--snd)">
-    <summary>Réglage du son : <span id="snd-name">Son</span></summary>
+    <summary>Réglage du son : <span id="snd-name">Son</span> <small id="snd-kit"></small></summary>
     <div class="vbody">
       <section class="card" id="m-snd" style="--c:var(--snd)">
-      <p class="sub">Touche un pad ou le nom d'une ligne pour choisir le son à régler.</p>
+      <p class="sub"><b id="kit-nom"></b> : <span id="kit-desc"></span><br>Touche un pad ou le nom d'une ligne du séquenceur pour choisir le son à régler.</p>
       <div class="recette" id="snd-recette"></div>
       <div class="lbl">Forme d'onde du son, du début à la fin</div>
       <canvas class="cv-wave" id="cv-wave"></canvas>
@@ -231,7 +234,7 @@ footer a{color:inherit}
           <li><b>Déclin</b> : la durée du son, du coup de baguette jusqu'au silence. Regarde la forme d'onde s'allonger ou se raccourcir.</li>
           <li><b>Volume</b> : le niveau de ce son dans le mélange, pour équilibrer la batterie.</li>
         </ul>
-        <p>Une batterie électronique n'enregistre rien : elle <b>fabrique</b> chaque son avec les mêmes briques qu'un synthétiseur (oscillateurs, bruit, filtres, enveloppes). Pour explorer ces briques une par une, ouvre le <a href="https://mlevan8395.github.io/mini-synthe/">mini-synthé pédagogique</a>.</p>
+        <p>Une batterie électronique n'enregistre rien : elle <b>fabrique</b> chaque son avec les mêmes briques qu'un synthétiseur (oscillateurs, bruit, filtres, enveloppes). Change de <b>kit</b> (en haut) et compare : même rythme, même instrument, mais une tout autre fabrication du son. Pour explorer ces briques une par une, ouvre le <a href="https://mlevan8395.github.io/mini-synthe/">mini-synthé pédagogique</a>.</p>
       </details>
       </section>
     </div>
@@ -273,12 +276,86 @@ const SND = [
    recette:['2 oscillateurs carrés','Filtre passe-bande'],
    aide:`<p>La célèbre cloche (<i>cowbell</i>) des boîtes à rythmes des années 80 : seulement <b>deux oscillateurs carrés</b>, à 540 et 800 Hz. Ces deux fréquences ne forment pas un intervalle « juste », et c'est ce frottement qui sonne métallique. Un filtre passe-bande arrondit le tout.</p><p>Très utilisée dans la musique latine, le funk et la pop électronique.</p>`},
 ];
+const KITS = {
+  acou:{nom:'Acoustique', desc:`Une vraie batterie : des fûts, des peaux et des cymbales frappés avec des baguettes. Ici, chaque son est imité par le calcul, en copiant ce qui se passe dans l'instrument.`},
+  elec:{nom:'Électronique', desc:`Les boîtes à rythmes des années 80 (comme la célèbre TR-808) : tous les sons sont fabriqués avec des oscillateurs, du bruit et des filtres, comme sur un synthétiseur.`},
+  bit:{nom:'8 bits', desc:`Les sons des consoles de jeux vidéo des années 80 : seulement des ondes carrées, une onde triangle et un bruit très granuleux.`},
+};
+const KDEF = {
+  elec:{},
+  acou:{
+    kick:{base:58, decay:.35, dmin:.1, dmax:1, level:.95, x:.4, xl:'Batte : feutre ↔ bois',
+      recette:['Choc de la batte','Peau qui vibre en grave','Résonance du fût'],
+      aide:`<p>Le pied appuie sur une pédale : une <b>batte</b> frappe la grande peau. On entend d'abord le <b>choc</b> de la batte (aigu, très court), puis la <b>peau</b> qui vibre en grave et le <b>fût</b> qui résonne.</p><p>Le curseur <b>Batte</b> passe d'une batte en feutre (son rond) à une batte en bois ou en plastique (son qui claque, qu'on entend bien dans le rock et le métal). Compare avec le kit électronique : là-bas, pas de choc, seulement un oscillateur qui plonge.</p>`},
+    snare:{base:190, decay:.3, dmin:.08, dmax:.9, level:.9, x:.6, xl:'Timbre (ressorts)',
+      recette:['Coup de baguette','Peau qui vibre','Ressorts du timbre'],
+      aide:`<p>La baguette frappe la peau du dessus. La peau vibre (le « corps » du son) et fait vibrer la peau du dessous, contre laquelle sont tendus des <b>ressorts métalliques</b> : le <b>timbre</b>. Ce sont eux qui grésillent et donnent le « tchak ».</p><p>Avec le curseur <b>Timbre</b>, tu desserres ou resserres les ressorts. Tout à gauche, il n'y a presque plus de timbre : la caisse claire sonne comme un tom.</p>`},
+    rim:{base:430, decay:.07, dmin:.02, dmax:.25, level:.8,
+      recette:['Baguette posée à plat','Choc sur le cercle','Son boisé'],
+      aide:`<p>On appelle ce coup <i>cross-stick</i>. Le batteur pose la baguette à plat sur la peau et frappe le <b>cercle</b> de la caisse claire avec l'autre bout : un « toc » boisé et doux.</p><p>On l'entend en bossa nova, en reggae et dans les couplets calmes des ballades, à la place de la caisse claire.</p>`},
+    clap:{base:1100, decay:.35, dmin:.1, dmax:1, level:.8, x:.5, xl:'Écart entre les mains',
+      recette:['Plusieurs mains','Petits décalages','Réverbération de la pièce'],
+      aide:`<p>Ce n'est pas un élément de la batterie : ce sont de <b>vraies mains</b> ! Quand plusieurs personnes frappent ensemble, les claps arrivent avec quelques millisecondes d'écart, et la pièce ajoute un peu de <b>réverbération</b>.</p><p>Dans la soul, le gospel et la pop, on double souvent la caisse claire avec des claps sur 2 et 4.</p>`},
+    hhc:{decay:.07, dmin:.02, dmax:.25, level:.6, x:.5, xl:'Brillance',
+      recette:['Deux cymbales serrées','Des dizaines de fréquences','Déclin très court'],
+      aide:`<p>Deux cymbales l'une sur l'autre, montées sur un pied avec une pédale. Pédale enfoncée, elles sont <b>serrées</b> : la baguette donne un « tsk » court et sec.</p><p>Une cymbale vibre sur des dizaines de fréquences qui n'ont pas de rapport simple entre elles : c'est pour ça qu'elle ne joue pas une note. Le charley fermé <b>coupe</b> le charley ouvert, comme le pied qui referme les cymbales.</p>`},
+    hho:{decay:.7, dmin:.15, dmax:2.5, level:.5, x:.5, xl:'Brillance',
+      recette:['Deux cymbales entrouvertes','Des dizaines de fréquences','Déclin long'],
+      aide:`<p>Pédale relâchée, les deux cymbales se touchent à peine : elles <b>frissonnent</b> l'une contre l'autre et le son dure longtemps.</p><p>Le batteur ouvre souvent le charley sur le « ke » et le referme avec le pied sur le temps suivant : « tsss-tchk ».</p>`},
+    tomh:{base:190, decay:.5, dmin:.12, dmax:1.5, level:.85, x:.3, xl:'Chute de hauteur',
+      recette:['Coup de baguette','Peau accordée','Plusieurs vibrations'],
+      aide:`<p>Un fût avec une peau qu'on <b>accorde</b> avec des clés, comme une timbale. Une peau ne vibre pas comme une corde : ses vibrations ne sont pas des harmoniques « justes », d'où ce son rond et un peu sourd. Juste après le coup, la peau est plus tendue : la hauteur <b>descend</b> légèrement.</p><p>Les toms servent surtout aux <b>roulements</b> (les <i>fills</i>) qui annoncent une nouvelle partie du morceau.</p>`},
+    toml:{base:95, decay:.75, dmin:.15, dmax:2, level:.9, x:.3, xl:'Chute de hauteur',
+      recette:['Coup de baguette','Grande peau grave','Plusieurs vibrations'],
+      aide:`<p>Le plus grave des toms, posé au sol à côté du batteur : on l'appelle aussi <b>tom basse</b> ou <i>floor tom</i>. Même recette que le tom aigu, avec une peau plus grande, accordée plus bas, qui résonne plus longtemps.</p>`},
+    crash:{decay:2.6, dmin:.5, dmax:5, level:.5, x:.5, xl:'Brillance',
+      recette:['Grande cymbale fine','Des dizaines de fréquences','Déclin très long'],
+      aide:`<p>Une grande cymbale fine qu'on frappe sur le bord pour <b>marquer un début</b> : un refrain, la fin d'un roulement. Le son « s'ouvre » une fraction de seconde après le coup, puis s'éteint très lentement.</p><p>Pour l'arrêter net, le batteur attrape la cymbale avec la main.</p>`},
+    bell:{base:560, decay:.45, dmin:.08, dmax:1.5, level:.55,
+      recette:['Cloche en métal','Quelques fréquences fortes','Coup de baguette'],
+      aide:`<p>Une vraie <b>cloche</b> en métal (en anglais <i>cowbell</i>), fixée sur la batterie ou tenue à la main. Contrairement aux cymbales, elle n'a que <b>quelques fréquences fortes</b> : on entend presque une note.</p><p>Elle est très présente dans la salsa, la musique latine et le funk.</p>`},
+  },
+  bit:{
+    kick:{base:50, decay:.18, dmin:.05, dmax:.6, level:.8, x:.6, xl:'Chute de hauteur',
+      recette:['Onde carrée','Hauteur qui plonge'],
+      aide:`<p>Les consoles des années 80 n'avaient que quelques « voix » très simples : des <b>ondes carrées</b>, une <b>onde triangle</b> et un <b>bruit</b> très grossier. Pour imiter une grosse caisse, on fait <b>plonger</b> très vite la hauteur d'une onde carrée.</p>`},
+    snare:{base:220, decay:.16, dmin:.04, dmax:.6, level:.7, x:.7, xl:'Part du bruit',
+      recette:['Bruit granuleux','Petit coup d\u2019onde carrée'],
+      aide:`<p>Presque uniquement le <b>générateur de bruit</b> de la console. Ce bruit est très grossier : la console ne sait faire que quelques niveaux, alors le souffle sonne « granuleux ». Un petit coup d'onde carrée ajoute le corps.</p>`},
+    rim:{base:900, decay:.04, dmin:.015, dmax:.2, level:.6,
+      recette:['Onde carrée très courte'],
+      aide:`<p>Un simple « bip » d'onde carrée, très court. C'est tout !</p>`},
+    clap:{base:1, decay:.16, dmin:.05, dmax:.6, level:.7, x:.5, xl:'Écart entre les claps',
+      recette:['Bruit granuleux','3 bouffées rapprochées'],
+      aide:`<p>Trois petites bouffées de bruit granuleux très rapprochées : la même idée que le clap électronique, avec les moyens d'une console de jeu.</p>`},
+    hhc:{base:1, decay:.05, dmin:.015, dmax:.25, level:.5,
+      recette:['Bruit granuleux aigu','Déclin très court'],
+      aide:`<p>Le bruit de la console joué <b>plus aigu</b> (plus vite) et très court : « tst ». Il coupe le charley ouvert.</p>`},
+    hho:{base:1, decay:.35, dmin:.1, dmax:1.5, level:.4,
+      recette:['Bruit granuleux aigu','Déclin long'],
+      aide:`<p>Le même bruit aigu que le charley fermé, qu'on laisse durer plus longtemps.</p>`},
+    tomh:{base:220, decay:.2, dmin:.05, dmax:.8, level:.85, x:.6, xl:'Chute de hauteur',
+      recette:['Onde triangle','Hauteur qui descend'],
+      aide:`<p>L'<b>onde triangle</b> des vieilles consoles, dont la hauteur descend : c'est le son des toms (et des lignes de basse) dans la musique de jeux vidéo.</p>`},
+    toml:{base:110, decay:.28, dmin:.05, dmax:1, level:.9, x:.6, xl:'Chute de hauteur',
+      recette:['Onde triangle grave','Hauteur qui descend'],
+      aide:`<p>La même onde triangle que le tom aigu, une octave plus bas.</p>`},
+    crash:{base:1, decay:1.2, dmin:.3, dmax:3, level:.4,
+      recette:['Bruit granuleux','Déclin long'],
+      aide:`<p>Le bruit de la console, qu'on laisse s'éteindre lentement : la cymbale du pauvre, mais on la reconnaît tout de suite !</p>`},
+    bell:{base:660, decay:.3, dmin:.05, dmax:1, level:.45,
+      recette:['2 ondes carrées à la quinte'],
+      aide:`<p>Deux ondes carrées à la <b>quinte</b> l'une de l'autre : un « ding » de jeu vidéo, celui qu'on entend quand on attrape une pièce.</p>`},
+  },
+};
 const ROWS = SND.length;
 const IDX = Object.fromEntries(SND.map((s,i)=>[s.id,i]));
-const defParams = i => ({tune:0, decay:SND[i].decay, level:SND[i].level, x:SND[i].x});
-let SP = SND.map((s,i)=>defParams(i));
+const S = {kit:'elec', bpm:100, swing:0, res:8, metro:false, rec:false, sel:IDX.snare, master:.8, preset:'rock'};
+const SD = (i,kit=S.kit) => Object.assign({},SND[i],KDEF[kit][SND[i].id]||{});
+const defParams = (i,kit=S.kit) => { const s=SD(i,kit); return {tune:0, decay:s.decay, level:s.level, x:s.x}; };
+const SPK = {}; Object.keys(KITS).forEach(k=>SPK[k]=SND.map((_,i)=>defParams(i,k)));
+let SP = SPK.elec;
 let pat = Array.from({length:ROWS},()=>Array(16).fill(0));
-const S = {bpm:100, swing:0, res:8, metro:false, rec:false, sel:IDX.snare, master:.8, preset:'rock'};
 const PAD_LAYOUT = [
   ['hhc','KeyQ','A'],['hho','KeyW','Z'],['crash','KeyE','E'],['bell','KeyR','R'],['rim','KeyT','T'],
   ['kick','KeyA','Q'],['snare','KeyS','S'],['clap','KeyD','D'],['tomh','KeyF','F'],['toml','KeyG','G'],
@@ -288,30 +365,30 @@ const COUNT = ['1','ti','ke','ta','2','ti','ke','ta','3','ti','ke','ta','4','ti'
 /* ================= RYTHMES DE DÉPART ================= */
 // x = note, X = accent, . = rien
 const PRESETS = {
-  rock:{nom:'Rock', bpm:100, swing:0, res:8,
+  rock:{nom:'Rock', kit:'acou', bpm:100, swing:0, res:8,
     p:{kick:'X.......X.x.....', snare:'....X.......X...', hhc:'X.x.X.x.X.x.X.x.', crash:'X...............'},
     d:`<b>Rock</b> : le groove de base. Charley en croches, grosse caisse sur 1 et 3 (avec un petit « ke » du 3 en plus), caisse claire sur 2 et 4 : le contretemps. La crash marque le début de la mesure.`},
-  disco:{nom:'Disco / house', bpm:120, swing:0, res:8,
+  disco:{nom:'Disco / house', kit:'elec', bpm:120, swing:0, res:8,
     p:{kick:'X...X...X...X...', snare:'....x.......x...', clap:'....X.......X...', hhc:'x...x...x...x...', hho:'..x...x...x...x.'},
     d:`<b>Disco / house</b> : la grosse caisse sur chaque temps (on dit « four on the floor »), le charley ouvert sur chaque « ke », et clap + caisse claire ensemble sur 2 et 4.`},
-  funk:{nom:'Funk', bpm:96, swing:0, res:16,
+  funk:{nom:'Funk', kit:'acou', bpm:96, swing:0, res:16,
     p:{kick:'X.x.......x..x..', snare:'....X..x.x..X..x', hhc:'XxxxXxxxXxxxXxxx'},
     d:`<b>Funk</b> : charley en doubles croches avec un accent sur chaque temps, grosse caisse syncopée, et des petites notes douces de caisse claire (les <i>ghost notes</i>) autour des accents du 2 et du 4.`},
-  hiphop:{nom:'Hip-hop', bpm:88, swing:.55, res:16,
+  hiphop:{nom:'Hip-hop', kit:'elec', bpm:88, swing:.55, res:16,
     p:{kick:'X......x..X.....', snare:'....X.......X...', hhc:'x.xxx.x.x.xxx.xx'},
     snd:{kick:{decay:.6}},
     d:`<b>Hip-hop</b> (boom bap) : grosse caisse lourde, caisse claire sur 2 et 4, et du <b>swing sur les doubles croches</b> qui donne le côté chaloupé. Mets le swing à 0 % pour entendre la différence.`},
-  trap:{nom:'Trap', bpm:140, swing:0, res:16,
+  trap:{nom:'Trap', kit:'elec', bpm:140, swing:0, res:16,
     p:{kick:'X......X..X.....', snare:'........X.......', clap:'........X.......', hhc:'x.x.x.x.x.x.xxxx'},
     snd:{kick:{decay:1.2, tune:-3, x:.35}},
     d:`<b>Trap</b> : le tempo est rapide mais on le ressent deux fois plus lent (on dit <b>demi-tempo</b>) car la caisse claire ne tombe que sur le 3. Charley en croches puis en rafale, grosse caisse « 808 » très longue.`},
-  shuffle:{nom:'Shuffle blues', bpm:88, swing:1, res:8,
+  shuffle:{nom:'Shuffle blues', kit:'acou', bpm:88, swing:1, res:8,
     p:{kick:'X.......X.....x.', snare:'....X.......X...', hhc:'X.x.X.x.X.x.X.x.'},
     d:`<b>Shuffle blues</b> : rythme <b>ternaire</b>. Le swing à 100 % sur les croches décale chaque « ke » au dernier tiers du temps : « 1 - ke, 2 - ke… ». Écris exactement les mêmes cases en mettant le swing à 0 % : c'est du rock binaire.`},
-  reggae:{nom:'Reggae', bpm:76, swing:.45, res:8,
+  reggae:{nom:'Reggae', kit:'acou', bpm:76, swing:.45, res:8,
     p:{kick:'........X.......', rim:'........X.......', hhc:'x.x.x.x.x.x.x.x.'},
     d:`<b>Reggae « one drop »</b> : pas de grosse caisse sur le 1 ! Grosse caisse et cercle tombent ensemble <b>uniquement sur le 3</b>. Le charley est un peu swingué.`},
-  bossa:{nom:'Bossa nova', bpm:70, swing:0, res:16,
+  bossa:{nom:'Bossa nova', kit:'acou', bpm:70, swing:0, res:16,
     p:{kick:'x..xx..xx..xx..x', rim:'X..X..X...X..X..', hhc:'xxxxxxxxxxxxxxxx'},
     d:`<b>Bossa nova</b> : ici chaque case vaut une <b>croche</b> (la grille fait deux mesures à 2 temps). Le cercle joue la clave de la bossa, la grosse caisse balance comme une ligne de basse, le charley est régulier comme un shaker.`},
   vide:{nom:'Grille vide', bpm:100, swing:0, res:8, p:{},
@@ -390,10 +467,7 @@ function hat(c,out,t,p,v,s,open){
   const bp=filt(c,'bandpass',10000,.8); bp.connect(hp);
   const mg=c.createGain(); mg.gain.value=1-p.x; mg.connect(bp); metal(c,t,s.base*k,d,mg);
   const n=noise(c,t,d), ng=c.createGain(); ng.gain.value=p.x*.8; n.connect(ng); ng.connect(hp);
-  if(c===AC){
-    if(open) openHats.push({choke,start:t,end:t+d});
-    else { openHats.forEach(h=>{ if(h.start<=t && h.end>t) h.choke.gain.setTargetAtTime(0,t,.008); }); openHats=openHats.filter(h=>h.start>t); }
-  }
+  chokeHat(c,choke,t,d,open);
   return d+.01;
 }
 function tom(c,out,t,p,v,s){ const f=s.base*2**(p.tune/12), d=p.decay, L=p.level*v;
@@ -401,9 +475,111 @@ function tom(c,out,t,p,v,s){ const f=s.base*2**(p.tune/12), d=p.decay, L=p.level
   const n=noise(c,t,.05), b=filt(c,'bandpass',f*5,1); n.connect(b); b.connect(vca(c,out,t,L*.15,.001,.04));
   return d+.01; }
 
+function chokeHat(c,choke,t,d,open){
+  if(c!==AC) return;
+  if(open) openHats.push({choke,start:t,end:t+d});
+  else { openHats.forEach(h=>{ if(h.start<=t && h.end>t) h.choke.gain.setTargetAtTime(0,t,.008); }); openHats=openHats.filter(h=>h.start>t); }
+}
+function sine(c,dest,t,f,peak,a,d,f0,bend){ const o=osc(c,'sine',f0||f,t,a+d); if(f0) o.frequency.exponentialRampToValueAtTime(f,t+(bend||.06)); o.connect(vca(c,dest,t,peak,a,d)); }
+function nz(c,dest,t,type,f,q,peak,a,d){ const n=noise(c,t,a+d), b=filt(c,type,f,q); n.connect(b); b.connect(vca(c,dest,t,peak,a,d)); }
+const CYM=[1,1.47,1.89,2.37,2.81,3.36,3.94,4.52,5.13,5.87,6.62,7.4,8.29,9.1];
+function cymbal(c,dest,t,f,d,gain){ const m=c.createGain(); m.gain.value=gain; CYM.forEach((r,j)=>{ const o=osc(c,'sine',f*r*(1+.013*Math.sin(j*7.1)),t,d); o.connect(m); }); m.connect(dest); }
+
+/* --- kit acoustique --- */
+const ACOU = {
+  kick(c,out,t,p,v,s){ const f=s.base*2**(p.tune/12), d=p.decay, L=p.level*v;
+    sine(c,out,t,f,L,.002,d,f*1.5,.04);
+    sine(c,out,t,f*2.1,L*.22,.002,d*.3,f*2.6,.03);
+    nz(c,out,t,'lowpass',1500+6000*p.x,.8,L*(.3+.5*p.x),.0008,.012);
+    nz(c,out,t,'lowpass',180,.7,L*.25,.004,d*.6);
+    return d+.02; },
+  snare(c,out,t,p,v,s){ const f=s.base*2**(p.tune/12), d=p.decay, L=p.level*v;
+    sine(c,out,t,f,L*.55,.001,d*.3,f*1.12,.03);
+    sine(c,out,t,f*1.6,L*.3,.001,d*.2);
+    nz(c,out,t,'bandpass',4800,.55,L*(.25+1.1*p.x),.002,d);
+    nz(c,out,t,'highpass',5000,.7,L*.45,.0005,.012);
+    return d+.02; },
+  rim(c,out,t,p,v,s){ const f=s.base*2**(p.tune/12), d=p.decay, L=p.level*v;
+    nz(c,out,t,'bandpass',f*4,6,L*2.2,.0005,d);
+    sine(c,out,t,f,L*.55,.0005,d*.8);
+    sine(c,out,t,f*1.73,L*.35,.0005,d*.5);
+    return d+.02; },
+  clap(c,out,t,p,v,s){ const f=s.base*2**(p.tune/12), d=p.decay, L=p.level*v*2.6, sp=.007+.013*p.x;
+    const offs=[0,1,2.3,3.1], n=noise(c,t,4*sp+d), b=filt(c,'bandpass',f,.9), g=c.createGain(); n.connect(b); b.connect(g); g.connect(out);
+    const G=g.gain; G.setValueAtTime(.0001,t);
+    offs.forEach((o,i)=>{ const tt=t+o*sp; G.setValueAtTime(L*(1.3-.15*i),tt); G.exponentialRampToValueAtTime(L*.1,tt+sp*.7); });
+    const t4=t+3.1*sp+sp*.75; G.setValueAtTime(L*.5,t4); G.exponentialRampToValueAtTime(.0001,t4+d);
+    return 4*sp+d+.02; },
+  hhc(c,out,t,p,v,s){ return ahat(c,out,t,p,v,false); },
+  hho(c,out,t,p,v,s){ return ahat(c,out,t,p,v,true); },
+  tomh(c,out,t,p,v,s){ return atom(c,out,t,p,v,s); },
+  toml(c,out,t,p,v,s){ return atom(c,out,t,p,v,s); },
+  crash(c,out,t,p,v,s){ const k=2**(p.tune/12), d=p.decay, L=p.level*v*.85;
+    const g=c.createGain(); g.connect(out); const G=g.gain;
+    G.setValueAtTime(.0001,t); G.exponentialRampToValueAtTime(L,t+.006); G.exponentialRampToValueAtTime(L*.45,t+.12); G.exponentialRampToValueAtTime(.0001,t+d);
+    const hp=filt(c,'highpass',(1500+3000*p.x)*k); hp.connect(g);
+    const n=noise(c,t,d), b=filt(c,'bandpass',6500*Math.min(k,1.5),.35); n.connect(b); b.connect(hp);
+    cymbal(c,hp,t,420*k,d,.12);
+    return d+.02; },
+  bell(c,out,t,p,v,s){ const f=s.base*2**(p.tune/12), d=p.decay, L=p.level*v*.6;
+    [[1,1,1],[1.51,.7,.8],[2.39,.35,.5],[3.13,.22,.3]].forEach(([r,a,dd])=>sine(c,out,t,f*r,L*a,.001,d*dd));
+    nz(c,out,t,'bandpass',3200,2,L*.4,.0005,.015);
+    return d+.02; },
+};
+function ahat(c,out,t,p,v,open){
+  const k=2**(p.tune/12), d=p.decay, L=p.level*v*.9;
+  const choke=c.createGain(); choke.connect(out);
+  const g=vca(c,choke,t,L,.001,d);
+  const hp=filt(c,'highpass',(4500+4500*p.x)*Math.min(k,1.4)); hp.connect(g);
+  const n=noise(c,t,d), b=filt(c,'bandpass',9000,.5); n.connect(b); b.connect(hp);
+  cymbal(c,hp,t,1150*k,d,.1);
+  if(!open) nz(c,choke,t,'bandpass',2800,1.5,L*.15,.0005,.01);
+  chokeHat(c,choke,t,d,open);
+  return d+.02;
+}
+function atom(c,out,t,p,v,s){ const f=s.base*2**(p.tune/12), d=p.decay, L=p.level*v;
+  sine(c,out,t,f,L,.002,d,f*(1+.6*p.x),.09);
+  sine(c,out,t,f*1.59,L*.32,.002,d*.45,f*1.59*(1+.4*p.x),.07);
+  sine(c,out,t,f*2.14,L*.16,.002,d*.28);
+  nz(c,out,t,'bandpass',f*7,1,L*.3,.0008,.02);
+  return d+.02; }
+
+/* --- kit 8 bits --- */
+const NB8 = new WeakMap();
+function noise8(c,t,dur,rate){
+  let b=NB8.get(c);
+  if(!b){ const n=Math.floor(c.sampleRate*2); b=c.createBuffer(1,n,c.sampleRate); const d=b.getChannelData(0); const lv=[-1,-.33,.33,1]; let cur=0; for(let i=0;i<n;i++){ if(i%8===0) cur=lv[Math.floor(Math.random()*4)]; d[i]=cur; } NB8.set(c,b); }
+  const s=c.createBufferSource(); s.buffer=b; s.loop=true; s.playbackRate.value=rate; s.start(t,Math.random()*1.9); s.stop(t+dur+.05); return s;
+}
+function bnz(c,dest,t,rate,peak,d,hpf){ const n=noise8(c,t,d,rate); let src=n; if(hpf){ const h=filt(c,'highpass',hpf); n.connect(h); src=h; } src.connect(vca(c,dest,t,peak,.0005,d)); }
+const BIT = {
+  kick(c,out,t,p,v,s){ const f=s.base*2**(p.tune/12), d=p.decay, L=p.level*v;
+    const o=osc(c,'square',f*(2+6*p.x),t,d); o.frequency.exponentialRampToValueAtTime(f,t+d*.7); o.connect(vca(c,out,t,L,.001,d)); return d+.01; },
+  snare(c,out,t,p,v,s){ const f=s.base*2**(p.tune/12), d=p.decay, L=p.level*v;
+    bnz(c,out,t,.5*2**(p.tune/12),L*(.3+.7*p.x),d);
+    osc(c,'square',f,t,.04).connect(vca(c,out,t,L*.5*(1-.6*p.x)+.05,.001,.04)); return d+.01; },
+  rim(c,out,t,p,v,s){ const f=s.base*2**(p.tune/12), d=p.decay, L=p.level*v*.9;
+    osc(c,'square',f,t,d).connect(vca(c,out,t,L,.0005,d)); return d+.01; },
+  clap(c,out,t,p,v,s){ const k=2**(p.tune/12), d=p.decay, L=p.level*v*.8, sp=.008+.016*p.x;
+    for(let i=0;i<3;i++) bnz(c,out,t+i*sp,.7*k,L,i<2?sp*.8:d); return 2*sp+d+.01; },
+  hhc(c,out,t,p,v,s){ return bhat(c,out,t,p,v,false); },
+  hho(c,out,t,p,v,s){ return bhat(c,out,t,p,v,true); },
+  tomh(c,out,t,p,v,s){ return btom(c,out,t,p,v,s); },
+  toml(c,out,t,p,v,s){ return btom(c,out,t,p,v,s); },
+  crash(c,out,t,p,v,s){ const k=2**(p.tune/12), d=p.decay, L=p.level*v*.6; bnz(c,out,t,1.3*k,L,d,1500); return d+.01; },
+  bell(c,out,t,p,v,s){ const f=s.base*2**(p.tune/12), d=p.decay, L=p.level*v*.6;
+    const m=c.createGain(); m.gain.value=1; osc(c,'square',f,t,d).connect(m); osc(c,'square',f*1.5,t,d).connect(m);
+    m.connect(vca(c,out,t,L,.001,d)); return d+.01; },
+};
+function bhat(c,out,t,p,v,open){ const k=2**(p.tune/12), d=p.decay, L=p.level*v;
+  const choke=c.createGain(); choke.connect(out); bnz(c,choke,t,2.5*k,L,d,5000); chokeHat(c,choke,t,d,open); return d+.01; }
+function btom(c,out,t,p,v,s){ const f=s.base*2**(p.tune/12), d=p.decay, L=p.level*v*.9;
+  const o=osc(c,'triangle',f*(1+2*p.x),t,d); o.frequency.exponentialRampToValueAtTime(f,t+d*.8); o.connect(vca(c,out,t,L,.001,d)); return d+.01; }
+const VOICES = {elec:VOICE, acou:ACOU, bit:BIT};
+
 let lastPlay=null; // {t, dur} du son sélectionné
 function play(i,t,vel){
-  const s=SND[i]; const dur=VOICE[s.id](AC,master,t,SP[i],vel,s);
+  const s=SD(i); const dur=VOICES[S.kit][s.id](AC,master,t,SP[i],vel,s);
   if(i===S.sel) lastPlay={t,dur};
   return dur;
 }
@@ -540,13 +716,14 @@ function loadPreset(k){
   const p=PRESETS[k]; S.preset=k; S.bpm=p.bpm; S.swing=p.swing; S.res=p.res;
   pat=Array.from({length:ROWS},()=>Array(16).fill(0));
   Object.entries(p.p).forEach(([id,str])=>{ [...str].forEach((ch,j)=>{ pat[IDX[id]][j]= ch==='X'?2: ch==='x'?1:0; }); });
-  SP=SND.map((s,i)=>defParams(i));
+  if(p.kit) S.kit=p.kit;
+  SPK[S.kit]=SND.map((_,i)=>defParams(i)); SP=SPK[S.kit];
   if(p.snd) Object.entries(p.snd).forEach(([id,o])=>Object.assign(SP[IDX[id]],o));
-  paintAll(); refreshControls(); renderSound(); save();
+  paintAll(); refreshControls(); select(S.sel); save();
 }
 function refreshPresetUI(){
   document.querySelectorAll('.pbtn').forEach(b=>b.classList.toggle('on',b.dataset.k===S.preset));
-  $('pdesc').innerHTML = S.preset && PRESETS[S.preset] ? PRESETS[S.preset].d : '<b>Ton rythme</b> : modifié à partir d\'un rythme de départ, ou reçu par un lien.';
+  $('pdesc').innerHTML = S.preset && PRESETS[S.preset] ? PRESETS[S.preset].d+(PRESETS[S.preset].kit?` <i>(kit ${KITS[PRESETS[S.preset].kit].nom.toLowerCase()} ; tu peux en changer en haut.)</i>`:'') : '<b>Ton rythme</b> : modifié à partir d\'un rythme de départ, ou reçu par un lien.';
 }
 function markCustom(){ if(S.preset!==null && S.preset!=='vide'){ S.preset=null; refreshPresetUI(); } }
 
@@ -579,9 +756,9 @@ function select(i){
   S.sel=i;
   Object.entries(padEls).forEach(([k,el])=>el.classList.toggle('sel',+k===i));
   lblEls.forEach((l,r)=>l.classList.toggle('sel',r===i));
-  const s=SND[i];
+  const s=SD(i);
   $('m-snd').style.setProperty('--c',s.col); $('v-snd').style.setProperty('--c',s.col);
-  $('snd-name').textContent=s.nom;
+  $('snd-name').textContent=s.nom; $('snd-kit').textContent='kit '+KITS[S.kit].nom.toLowerCase(); $('kit-nom').textContent='Kit '+KITS[S.kit].nom.toLowerCase(); $('kit-desc').textContent=KITS[S.kit].desc; $('kitSel').value=S.kit;
   $('snd-recette').innerHTML=s.recette.map(r=>`<span>${r}</span>`).join('<span class="plus">+</span>');
   $('snd-aide').innerHTML=s.aide;
   const box=$('snd-sliders'); box.innerHTML=''; box.className='two';
@@ -602,10 +779,10 @@ let wave=null, renderTok=0, rT=null;
 function renderSoon(){ clearTimeout(rT); rT=setTimeout(renderSound,60); }
 function renderSound(){
   const OC=window.OfflineAudioContext||window.webkitOfflineAudioContext; if(!OC) return;
-  const i=S.sel, s=SND[i], p=SP[i];
+  const i=S.sel, s=SD(i), p=SP[i];
   const len=Math.min(p.decay+(s.id==='clap'?.07:.04)+.02, 4.2), sr=44100;
   const oc=new OC(1,Math.ceil(sr*len),sr);
-  VOICE[s.id](oc,oc.destination,0,p,1,s);
+  VOICES[S.kit][s.id](oc,oc.destination,0,p,1,s);
   const tok=++renderTok;
   const pr=oc.startRendering();
   const done=buf=>{ if(tok!==renderTok) return; wave={data:buf.getChannelData(0),len,col:s.col,cols:null}; drawWave(); };
@@ -646,7 +823,7 @@ window.addEventListener('resize',()=>{ if(wave) wave.cols=null; drawWave(); });
 /* --- lien de partage et sauvegarde --- */
 function encode(){
   const q=new URLSearchParams();
-  q.set('t',S.bpm); q.set('sw',Math.round(S.swing*100)); q.set('res',S.res);
+  q.set('k',S.kit); q.set('t',S.bpm); q.set('sw',Math.round(S.swing*100)); q.set('res',S.res);
   q.set('p',pat.map(r=>r.join('')).join(''));
   q.set('s',SP.map(p=>[p.tune,Math.round(p.decay*1000),Math.round(p.level*100),p.x==null?'':Math.round(p.x*100)].join('_')).join('~'));
   return q.toString();
@@ -656,13 +833,14 @@ function decode(str){
   S.bpm=Math.min(180,Math.max(50,+q.get('t')||100)); S.swing=Math.min(1,Math.max(0,(+q.get('sw')||0)/100)); S.res=q.get('res')==='16'?16:8;
   pat=Array.from({length:ROWS},(_,r)=>[...p.slice(r*16,r*16+16)].map(Number));
   const s=(q.get('s')||'').split('~');
-  SP=SND.map((d,i)=>{ const o=defParams(i), f=(s[i]||'').split('_');
+  S.kit= KITS[q.get('k')] ? q.get('k') : 'elec';
+  SPK[S.kit]=SND.map((_,i)=>{ const d=SD(i), o=defParams(i), f=(s[i]||'').split('_');
     if(f.length>=3){ const tu=+f[0], de=+f[1]/1000, le=+f[2]/100, xx=f[3]===''||f[3]==null?null:+f[3]/100;
       if(isFinite(tu)) o.tune=Math.max(-12,Math.min(12,Math.round(tu)));
       if(isFinite(de)&&de>0) o.decay=Math.max(d.dmin,Math.min(d.dmax,de));
       if(isFinite(le)) o.level=Math.max(0,Math.min(1,le));
       if(d.x!==null && xx!==null && isFinite(xx)) o.x=Math.max(0,Math.min(1,xx)); }
-    return o; });
+    return o; }); SP=SPK[S.kit];
   S.preset=null; return true;
 }
 function copyLink(){
@@ -693,6 +871,10 @@ $('bpmDown').addEventListener('click',()=>{ S.bpm=Math.max(50,S.bpm-2); slBpm.re
 $('bpmUp').addEventListener('click',()=>{ S.bpm=Math.min(180,S.bpm+2); slBpm.refresh(); updTransport(); save(); });
 $('listenBtn').addEventListener('click',()=>{ audioOn(); play(S.sel,AC.currentTime+.01,.9); flash(S.sel); });
 $('resetBtn').addEventListener('click',()=>{ SP[S.sel]=defParams(S.sel); markCustom(); select(S.sel); });
+
+/* --- kits --- */
+function setKit(k){ if(!KITS[k]) return; S.kit=k; SP=SPK[k]; openHats=[]; select(S.sel); save(); }
+$('kitSel').addEventListener('change',e=>{ setKit(e.target.value); audioOn(); play(S.sel,AC.currentTime+.01,.9); flash(S.sel); });
 
 /* --- volets --- */
 const vSeq=$('v-seq'), vSnd=$('v-snd');
