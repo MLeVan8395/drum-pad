@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Drum pad pédagogique</title>
+<meta name="description" content="Un drum pad et une boîte à rythmes en ligne pour comprendre la batterie électronique : comment on fabrique chaque son, et comment on construit un rythme.">
+<meta name="theme-color" content="#121419">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icones/icone-192.png">
+<link rel="apple-touch-icon" href="icones/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#121419; --panel:#1b1e26; --panel2:#22262f; --line:#2e333e; --text:#ece9e2; --muted:#9aa1ad;
+  --acc:#ff6b6b; --seq:#f5a623; --snd:#2ec4b6;
+  --mono:'JetBrains Mono',ui-monospace,monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--text);font-family:'Space Grotesk',system-ui,sans-serif;-webkit-tap-highlight-color:transparent}
+body{padding-bottom:210px}
+header{padding:20px 18px 6px;max-width:1240px;margin:0 auto}
+h1{font-size:clamp(22px,4vw,32px);margin:0 0 4px;letter-spacing:-.01em}
+h1 span{color:var(--acc)}
+.htop{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+#install{background:var(--acc);color:#121419;border:0;border-radius:9px;padding:8px 12px;font:inherit;font-weight:600;font-size:14px;cursor:pointer;white-space:nowrap}
+.lead{color:var(--muted);margin:0;max-width:780px;line-height:1.45;font-size:15px}
+.lead b{color:var(--text)}
+main{max-width:1240px;margin:0 auto;padding:10px 14px 30px}
+
+/* rythmes de départ */
+.presets{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin:12px 0}
+.presets h2{font-size:14px;margin:0 0 8px;color:var(--muted);font-weight:500;text-transform:uppercase;letter-spacing:.08em}
+.pbtns{display:flex;flex-wrap:wrap;gap:6px}
+.pbtn{background:var(--panel2);border:1px solid var(--line);color:var(--text);border-radius:8px;padding:7px 11px;font:inherit;font-size:14px;cursor:pointer}
+.pbtn:hover{border-color:var(--muted)}
+.pbtn.on{border-color:var(--seq);color:var(--seq)}
+.pdesc{margin:10px 0 0;font-size:14px;color:var(--muted);line-height:1.45;min-height:1.4em}
+.pdesc b{color:var(--text)}
+
+.grid{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(300px,1fr);gap:12px;align-items:start}
+@media (max-width:900px){.grid{grid-template-columns:minmax(0,1fr)}}
+.card{--c:var(--seq);background:var(--panel);border:1px solid var(--line);border-top:3px solid var(--c);border-radius:14px;padding:14px 14px 12px;min-width:0}
+.card h2{margin:0 0 2px;font-size:17px;display:flex;align-items:center;gap:8px}
+.card h2 .num{font-family:var(--mono);font-size:11px;color:var(--bg);background:var(--c);border-radius:5px;padding:2px 6px}
+.card .sub{color:var(--muted);font-size:13px;margin:0 0 10px;line-height:1.4}
+
+/* curseurs */
+.slider{margin:9px 0}
+.sl-top{display:flex;justify-content:space-between;gap:8px;font-size:13px;margin-bottom:3px}
+.sl-top output{font-family:var(--mono);color:var(--c);font-size:12px;text-align:right}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:26px;background:transparent;margin:0;touch-action:pan-y}
+input[type=range]::-webkit-slider-runnable-track{height:6px;border-radius:3px;background:linear-gradient(90deg,var(--c) var(--p,50%),var(--line) var(--p,50%))}
+input[type=range]::-moz-range-track{height:6px;border-radius:3px;background:linear-gradient(90deg,var(--c) var(--p,50%),var(--line) var(--p,50%))}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:var(--text);margin-top:-6px;border:3px solid var(--c)}
+input[type=range]::-moz-range-thumb{width:13px;height:13px;border-radius:50%;background:var(--text);border:3px solid var(--c)}
+input[type=range]:focus-visible{outline:2px solid var(--c);outline-offset:2px;border-radius:4px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:0 14px}
+@media (max-width:520px){.two{grid-template-columns:1fr}}
+
+.seg{display:flex;gap:5px;flex-wrap:wrap;margin:4px 0 6px}
+.seg button{flex:1;background:var(--panel2);border:1px solid var(--line);color:var(--muted);border-radius:9px;padding:6px 8px;font:inherit;font-size:13px;cursor:pointer}
+.seg button.on{border-color:var(--c);color:var(--c);background:color-mix(in srgb,var(--c) 12%,transparent)}
+.lbl{font-size:13px;color:var(--muted);margin:8px 0 2px}
+.tools{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 4px}
+.tbtn{background:var(--panel2);border:1px solid var(--line);color:var(--text);border-radius:8px;padding:7px 11px;font:inherit;font-size:13px;cursor:pointer}
+.tbtn:hover{border-color:var(--muted)}
+.tbtn[aria-pressed=true]{border-color:var(--c);color:var(--c);background:color-mix(in srgb,var(--c) 12%,transparent)}
+.status{font-size:13px;color:var(--snd);margin:4px 0 0;min-height:1.2em;word-break:break-all}
+
+/* séquenceur */
+.seqwrap{overflow-x:auto;margin:10px 0 0;padding:2px 0 6px}
+.seq{min-width:520px;display:flex;flex-direction:column;gap:4px}
+.srow{display:grid;grid-template-columns:116px repeat(16,minmax(0,1fr));gap:3px;align-items:center}
+.slbl .ct{display:none}
+@media (max-width:640px){.srow{grid-template-columns:86px repeat(16,minmax(0,1fr))}.slbl .lg{display:none}.slbl .ct{display:inline}}
+.slbl{--c:var(--muted);background:none;border:0;border-left:4px solid var(--c);color:var(--text);font:inherit;font-size:12px;text-align:left;padding:4px 4px 4px 7px;cursor:pointer;border-radius:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.slbl{position:sticky;left:0;z-index:2;background:var(--panel);align-self:stretch;display:flex;align-items:center;box-shadow:4px 0 0 var(--panel)}
+.slbl span{overflow:hidden;text-overflow:ellipsis}
+.srow.count span:first-child{position:sticky;left:0;z-index:2;background:var(--panel);align-self:stretch;box-shadow:4px 0 0 var(--panel)}
+.slbl.sel{background:color-mix(in srgb,var(--c) 22%,var(--panel))}
+.cell{height:28px;border-radius:5px;background:#2a2e38;border:1px solid transparent;padding:0;cursor:pointer;position:relative}
+.cell.b{background:#20232b}
+.cell.v1{background:color-mix(in srgb,var(--c) 50%,#20232b)}
+.cell.v2{background:var(--c);box-shadow:0 0 8px color-mix(in srgb,var(--c) 60%,transparent)}
+.cell.v2::after{content:'>';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:11px;font-weight:600;color:#121419}
+.cell.now{border-color:#fff}
+.srow.count span{font-family:var(--mono);font-size:11px;color:var(--muted);text-align:center;border-radius:4px;padding:2px 0}
+.srow.count span.beat{color:var(--text);font-weight:600;font-size:13px}
+.srow.count span.now{background:var(--seq);color:#121419}
+
+details.help{margin-top:10px;border-top:1px dashed var(--line);padding-top:8px}
+details.help summary{cursor:pointer;color:var(--c);font-size:13px;font-weight:500;list-style:none}
+details.help summary::-webkit-details-marker{display:none}
+details.help summary::before{content:'＋ '}
+details.help[open] summary::before{content:'－ '}
+details.help p,details.help li{font-size:14px;line-height:1.5;color:#cfd3da}
+details.help ul{padding-left:18px;margin:6px 0}
+details.help b{color:var(--text)}
+details.help a{color:var(--c)}
+
+/* son sélectionné */
+.recette{display:flex;flex-wrap:wrap;gap:5px;margin:2px 0 10px}
+.recette span{border:1px solid var(--c);color:var(--c);border-radius:999px;padding:3px 9px;font-size:12px}
+.recette .plus{border:0;color:var(--muted);padding:3px 0}
+canvas{display:block;width:100%;background:#0d0f13;border:1px solid var(--line);border-radius:10px}
+.cv-wave{height:150px}
+
+/* pads */
+.padwrap{position:fixed;left:0;right:0;bottom:0;background:linear-gradient(180deg,rgba(18,20,25,.88),#121419 30%);backdrop-filter:blur(6px);border-top:1px solid var(--line);padding:8px 10px calc(10px + env(safe-area-inset-bottom));z-index:10}
+.pbar{max-width:900px;margin:0 auto 7px;display:flex;align-items:center;gap:7px;flex-wrap:wrap;font-size:13px;color:var(--muted)}
+.pbar button{background:var(--panel2);border:1px solid var(--line);color:var(--text);border-radius:8px;padding:6px 11px;font:inherit;font-size:13px;cursor:pointer}
+#playBtn{min-width:96px;font-weight:600}
+#playBtn.on{border-color:var(--seq);color:var(--seq)}
+#recBtn.on{border-color:var(--acc);color:#121419;background:var(--acc)}
+.pbar .bpm{font-family:var(--mono);color:var(--text);min-width:64px;text-align:center}
+.pbar .hint{margin-left:auto}
+@media (hover:none){.pbar .hint,.pad .ck{display:none}}
+.startnote{display:none;background:var(--acc);color:#121419;border-radius:8px;padding:5px 10px;font-weight:600}
+.startnote.show{display:inline-block}
+.pads{max-width:900px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr);gap:7px;touch-action:none;user-select:none;-webkit-user-select:none}
+.pad{--c:#888;height:60px;border-radius:12px;background:linear-gradient(#2b2f39,#1d2028);border:1px solid var(--line);border-bottom:4px solid var(--c);color:var(--text);font:inherit;font-size:13px;font-weight:500;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:2px;transition:background .12s,transform .05s;touch-action:none}
+.pad .ck{font-family:var(--mono);font-size:10px;color:var(--muted)}
+.pad.sel{box-shadow:inset 0 0 0 2px color-mix(in srgb,var(--c) 70%,transparent)}
+.pad.hit{background:var(--c);color:#121419;transform:scale(.96);transition:none}
+.pad.hit .ck{color:#121419}
+@media (max-width:520px){.pad{height:54px;font-size:12px}.pbar button{padding:6px 9px}}
+footer{max-width:1240px;margin:0 auto;padding:0 18px;color:var(--muted);font-size:12px}
+footer a{color:inherit}
+</style>
+</head>
+<body>
+<header>
+  <div class="htop"><h1>Drum pad <span>pédagogique</span></h1><button id="install" hidden>Installer l'appli</button></div>
+  <p class="lead">Tape sur les <b>pads</b> en bas pour jouer, puis construis un rythme dans le <b>séquenceur</b>. Chaque son est fabriqué en direct, comme sur une vraie boîte à rythmes : choisis-en un pour voir sa <b>recette</b> et changer ses réglages.</p>
+</header>
+
+<main>
+  <section class="presets" aria-label="Rythmes de départ">
+    <h2>Rythmes de départ</h2>
+    <div class="pbtns" id="presets"></div>
+    <p class="pdesc" id="pdesc"></p>
+  </section>
+
+  <div class="grid">
+    <!-- SÉQUENCEUR -->
+    <section class="card" id="m-seq" style="--c:var(--seq)">
+      <h2><span class="num">1</span> Séquenceur</h2>
+      <p class="sub">Une mesure à 4 temps, chaque temps coupé en 4 doubles croches. Touche une case : <b>note</b>, puis <b>accent</b> (&gt;), puis vide.</p>
+      <div class="seqwrap"><div class="seq" id="seq"></div></div>
+      <div class="two">
+        <div id="sl-bpm"></div>
+        <div id="sl-master"></div>
+        <div id="sl-swing"></div>
+        <div>
+          <div class="lbl">Swing sur les…</div>
+          <div class="seg" id="seg-res">
+            <button data-val="8">croches</button>
+            <button data-val="16">doubles croches</button>
+          </div>
+        </div>
+      </div>
+      <div class="tools">
+        <button class="tbtn" id="metroBtn" aria-pressed="false">Métronome</button>
+        <button class="tbtn" id="clearBtn">Effacer la grille</button>
+        <button class="tbtn" id="linkBtn">Copier le lien de ce rythme</button>
+      </div>
+      <p class="status" id="status"></p>
+      <details class="help"><summary>Comprendre le séquenceur</summary>
+        <p>La grille se lit de gauche à droite, comme une partition. Les gros chiffres sont les <b>temps</b> ; entre deux temps, on compte les doubles croches <b>« 1 ti ke ta, 2 ti ke ta… »</b>. Une croche tombe sur le chiffre et sur le « ke ».</p>
+        <ul>
+          <li><b>Grosse caisse</b> : souvent sur les temps forts (1 et 3), c'est le pied qui donne la pulsation.</li>
+          <li><b>Caisse claire</b> : souvent sur 2 et 4, le <b>contretemps</b> (en anglais <i>backbeat</i>) qui fait bouger la tête.</li>
+          <li><b>Charley</b> : il découpe le temps en croches ou en doubles croches, c'est l'horloge du groupe.</li>
+          <li><b>Accent</b> (&gt;) : la note est jouée plus fort. Joue un charley avec un accent sur chaque temps, puis sans : le groove change.</li>
+          <li><b>Swing</b> : à 0 %, tout est régulier (binaire). En montant, la deuxième croche (ou double croche) de chaque paire arrive plus tard. À 100 %, elle tombe sur le dernier tiers du temps : c'est le <b>ternaire</b> du blues et du jazz.</li>
+          <li><b>Enregistrer</b> (en bas) : pendant la lecture, ce que tu joues sur les pads s'écrit tout seul dans la grille, recalé sur la case la plus proche.</li>
+        </ul>
+        <p><b>Copier le lien</b> donne une adresse qui contient tout le rythme et les réglages des sons : pratique pour envoyer un exercice à des élèves.</p>
+      </details>
+    </section>
+
+    <!-- SON SÉLECTIONNÉ -->
+    <section class="card" id="m-snd" style="--c:var(--snd)">
+      <h2><span class="num">2</span> <span id="snd-name">Son</span></h2>
+      <p class="sub">Touche un pad ou le nom d'une ligne pour choisir le son à régler.</p>
+      <div class="recette" id="snd-recette"></div>
+      <div class="lbl">Forme d'onde du son, du début à la fin</div>
+      <canvas class="cv-wave" id="cv-wave"></canvas>
+      <div id="snd-sliders"></div>
+      <div class="tools">
+        <button class="tbtn" id="listenBtn">Écouter</button>
+        <button class="tbtn" id="resetBtn">Réglage d'origine</button>
+      </div>
+      <details class="help" id="snd-help" open><summary>Comprendre ce son</summary><div id="snd-aide"></div></details>
+      <details class="help"><summary>Comprendre les réglages</summary>
+        <ul>
+          <li><b>Hauteur</b> : accorde le son plus grave ou plus aigu, en demi-tons. Les batteurs accordent aussi leurs fûts !</li>
+          <li><b>Déclin</b> : la durée du son, du coup de baguette jusqu'au silence. Regarde la forme d'onde s'allonger ou se raccourcir.</li>
+          <li><b>Volume</b> : le niveau de ce son dans le mélange, pour équilibrer la batterie.</li>
+        </ul>
+        <p>Une batterie électronique n'enregistre rien : elle <b>fabrique</b> chaque son avec les mêmes briques qu'un synthétiseur (oscillateurs, bruit, filtres, enveloppes). Pour explorer ces briques une par une, ouvre le <a href="https://mlevan8395.github.io/mini-synthe/">mini-synthé pédagogique</a>.</p>
+      </details>
+    </section>
+  </div>
+</main>
+<footer><p>Drum pad pédagogique · Mickael Le Van · logiciel libre (<a href="https://github.com/MLeVan8395/drum-pad">code source</a>) · aucune donnée collectée. Au casque, la grosse caisse s'entend bien mieux.</p></footer>
+
+<div class="padwrap">
+  <div class="pbar">
+    <button id="playBtn" aria-pressed="false">▶ Lecture</button>
+    <button id="bpmDown" aria-label="Tempo plus lent">−</button>
+    <span class="bpm" id="bpmLbl">100 bpm</span>
+    <button id="bpmUp" aria-label="Tempo plus rapide">+</button>
+    <button id="recBtn" aria-pressed="false">● Enregistrer</button>
+    <span class="startnote" id="startnote">Touche un pad pour activer le son</span>
+    <span class="hint">Clavier : A Z E R T / Q S D F G · Espace = lecture</span>
+  </div>
+  <div class="pads" id="pads" aria-label="Pads de batterie"></div>
+</div>
+
+<script>
+/* ================= LES SONS ================= */
+const SND = [
+  {id:'kick', nom:'Grosse caisse', court:'Gr. caisse', col:'#ff6b6b', base:52, hz:true, decay:.45, dmin:.08, dmax:1.6, level:.95, x:.5, xl:'Chute de hauteur',
+   recette:['Oscillateur sinus grave','Chute de hauteur','Enveloppe courte'],
+   aide:`<p>Un <b>oscillateur sinus</b> très grave (autour de 50 Hz). Au tout début du son, sa hauteur part de beaucoup plus haut et <b>chute en une fraction de seconde</b> : c'est cette chute qui fait le « boum ». Un tout petit souffle de bruit ajoute le claquement de la batte sur la peau.</p><p>L'enveloppe n'a pas de maintien : attaque immédiate, puis <b>déclin</b>. Allonge le déclin et baisse la hauteur : tu obtiens la grosse caisse « 808 » du hip-hop et de la trap.</p>`},
+  {id:'snare', nom:'Caisse claire', court:'C. claire', col:'#f5a623', base:185, hz:true, decay:.22, dmin:.05, dmax:.8, level:.85, x:.6, xl:'Timbre (part du bruit)',
+   recette:['Oscillateur triangle','Bruit blanc filtré','Enveloppe courte'],
+   aide:`<p>Deux sources mélangées. Un <b>oscillateur</b> donne le « corps » : la peau qui résonne. Du <b>bruit blanc</b> filtré (on ne garde que les aigus) imite le <b>timbre</b> : les petits ressorts tendus sous la caisse, qui font « tchak ».</p><p>Le curseur <b>Timbre</b> règle le mélange : à gauche, un son de tom sec ; à droite, presque que du souffle, comme une caisse claire très tendue.</p>`},
+  {id:'rim', nom:'Cercle (rim)', court:'Cercle', col:'#e9c46a', base:480, hz:true, decay:.06, dmin:.02, dmax:.25, level:.75, x:null,
+   recette:['Oscillateur aigu','Bruit en passe-bande','Enveloppe très courte'],
+   aide:`<p>Le batteur pose la baguette sur la peau et frappe le <b>cercle métallique</b> de la caisse claire : un « toc » sec, comme du bois. On le fabrique avec un oscillateur aigu et un éclat de bruit filtré en <b>passe-bande</b> (on ne garde qu'une zone de fréquences), avec un déclin très court.</p><p>On l'entend dans la bossa nova, le reggae et les ballades, à la place de la caisse claire.</p>`},
+  {id:'clap', nom:'Clap', court:'Clap', col:'#c792ea', base:1200, hz:false, decay:.25, dmin:.08, dmax:.9, level:.8, x:.5, xl:'Écart entre les mains',
+   recette:['Bruit en passe-bande','Enveloppe qui repart 3 fois'],
+   aide:`<p>Un clap, c'est plusieurs personnes qui frappent dans leurs mains… <b>jamais exactement en même temps</b>. La machine imite ça avec du <b>bruit</b> filtré en passe-bande et une enveloppe qui <b>redémarre trois fois</b> très vite, puis laisse une petite queue de réverbération.</p><p>Regarde la forme d'onde : on voit les trois petits pics au début. Le curseur <b>Écart entre les mains</b> les espace plus ou moins.</p>`},
+  {id:'hhc', nom:'Charley fermé', court:'Charley f.', col:'#2ec4b6', base:40, hz:false, decay:.06, dmin:.02, dmax:.25, level:.6, x:.3, xl:'Part du bruit',
+   recette:['6 oscillateurs carrés','Filtre passe-haut','Enveloppe très courte'],
+   aide:`<p>Une cymbale, ça ne fait pas une note : ses vibrations ne sont pas en rapport simple entre elles. La machine mélange donc <b>six oscillateurs carrés</b> accordés « faux » les uns par rapport aux autres, plus un peu de <b>bruit</b>, puis un filtre <b>passe-haut</b> ne garde que l'aigu métallique.</p><p>Charley fermé = les deux cymbales serrées par le pied : déclin très court, « tss ». Il <b>coupe</b> le charley ouvert, comme le pied qui referme les cymbales.</p>`},
+  {id:'hho', nom:'Charley ouvert', court:'Charley o.', col:'#7fe0d4', base:40, hz:false, decay:.5, dmin:.15, dmax:2, level:.5, x:.3, xl:'Part du bruit',
+   recette:['6 oscillateurs carrés','Filtre passe-haut','Déclin long'],
+   aide:`<p>La même recette que le charley fermé (six oscillateurs carrés désaccordés, du bruit, un filtre passe-haut) mais avec un <b>déclin long</b> : les cymbales sont ouvertes et vibrent librement.</p><p>Essaie : un charley ouvert sur le « ke » (la croche entre deux temps), puis un charley fermé sur le temps suivant. Le fermé coupe l'ouvert : c'est le « tsss-tchk » du disco.</p>`},
+  {id:'tomh', nom:'Tom aigu', court:'Tom aigu', col:'#7bd389', base:200, hz:true, decay:.4, dmin:.1, dmax:1.5, level:.8, x:.35, xl:'Chute de hauteur',
+   recette:['Oscillateur sinus','Petite chute de hauteur','Déclin'],
+   aide:`<p>Comme la grosse caisse, mais plus aigu : un <b>oscillateur sinus</b> dont la hauteur descend un peu au début du son. Les toms servent surtout aux <b>roulements</b> (les « fills ») qui annoncent une nouvelle partie du morceau.</p><p>Monte la chute de hauteur au maximum : tu obtiens le « piou » des toms électroniques des années 80.</p>`},
+  {id:'toml', nom:'Tom basse', court:'Tom basse', col:'#43a565', base:105, hz:true, decay:.6, dmin:.1, dmax:2, level:.85, x:.35, xl:'Chute de hauteur',
+   recette:['Oscillateur sinus','Petite chute de hauteur','Déclin'],
+   aide:`<p>Le plus grave des toms, posé au sol à côté du batteur. Même recette que le tom aigu, accordé plus bas et avec un déclin plus long. Dans un roulement, on descend en général de l'aigu vers le grave.</p>`},
+  {id:'crash', nom:'Cymbale crash', court:'Crash', col:'#a9bcd0', base:60, hz:false, decay:1.8, dmin:.4, dmax:4, level:.45, x:.5, xl:'Part du bruit',
+   recette:['6 oscillateurs carrés','Bruit','Passe-haut','Déclin très long'],
+   aide:`<p>Une grande cymbale qu'on frappe pour <b>marquer un début</b> : le premier temps d'un refrain, la fin d'un roulement. Même famille que le charley (oscillateurs carrés désaccordés et bruit, filtre passe-haut), avec plus de bruit et un <b>déclin très long</b> qui s'éteint doucement.</p>`},
+  {id:'bell', nom:'Cloche', court:'Cloche', col:'#ffd166', base:540, hz:true, decay:.35, dmin:.05, dmax:1.2, level:.5, x:null,
+   recette:['2 oscillateurs carrés','Filtre passe-bande'],
+   aide:`<p>La célèbre cloche (<i>cowbell</i>) des boîtes à rythmes des années 80 : seulement <b>deux oscillateurs carrés</b>, à 540 et 800 Hz. Ces deux fréquences ne forment pas un intervalle « juste », et c'est ce frottement qui sonne métallique. Un filtre passe-bande arrondit le tout.</p><p>Très utilisée dans la musique latine, le funk et la pop électronique.</p>`},
+];
+const ROWS = SND.length;
+const IDX = Object.fromEntries(SND.map((s,i)=>[s.id,i]));
+const defParams = i => ({tune:0, decay:SND[i].decay, level:SND[i].level, x:SND[i].x});
+let SP = SND.map((s,i)=>defParams(i));
+let pat = Array.from({length:ROWS},()=>Array(16).fill(0));
+const S = {bpm:100, swing:0, res:8, metro:false, rec:false, sel:IDX.snare, master:.8, preset:'rock'};
+const PAD_LAYOUT = [
+  ['hhc','KeyQ','A'],['hho','KeyW','Z'],['crash','KeyE','E'],['bell','KeyR','R'],['rim','KeyT','T'],
+  ['kick','KeyA','Q'],['snare','KeyS','S'],['clap','KeyD','D'],['tomh','KeyF','F'],['toml','KeyG','G'],
+];
+const COUNT = ['1','ti','ke','ta','2','ti','ke','ta','3','ti','ke','ta','4','ti','ke','ta'];
+
+/* ================= RYTHMES DE DÉPART ================= */
+// x = note, X = accent, . = rien
+const PRESETS = {
+  rock:{nom:'Rock', bpm:100, swing:0, res:8,
+    p:{kick:'X.......X.x.....', snare:'....X.......X...', hhc:'X.x.X.x.X.x.X.x.', crash:'X...............'},
+    d:`<b>Rock</b> : le groove de base. Charley en croches, grosse caisse sur 1 et 3 (avec un petit « ke » du 3 en plus), caisse claire sur 2 et 4 : le contretemps. La crash marque le début de la mesure.`},
+  disco:{nom:'Disco / house', bpm:120, swing:0, res:8,
+    p:{kick:'X...X...X...X...', snare:'....x.......x...', clap:'....X.......X...', hhc:'x...x...x...x...', hho:'..x...x...x...x.'},
+    d:`<b>Disco / house</b> : la grosse caisse sur chaque temps (on dit « four on the floor »), le charley ouvert sur chaque « ke », et clap + caisse claire ensemble sur 2 et 4.`},
+  funk:{nom:'Funk', bpm:96, swing:0, res:16,
+    p:{kick:'X.x.......x..x..', snare:'....X..x.x..X..x', hhc:'XxxxXxxxXxxxXxxx'},
+    d:`<b>Funk</b> : charley en doubles croches avec un accent sur chaque temps, grosse caisse syncopée, et des petites notes douces de caisse claire (les <i>ghost notes</i>) autour des accents du 2 et du 4.`},
+  hiphop:{nom:'Hip-hop', bpm:88, swing:.55, res:16,
+    p:{kick:'X......x..X.....', snare:'....X.......X...', hhc:'x.xxx.x.x.xxx.xx'},
+    snd:{kick:{decay:.6}},
+    d:`<b>Hip-hop</b> (boom bap) : grosse caisse lourde, caisse claire sur 2 et 4, et du <b>swing sur les doubles croches</b> qui donne le côté chaloupé. Mets le swing à 0 % pour entendre la différence.`},
+  trap:{nom:'Trap', bpm:140, swing:0, res:16,
+    p:{kick:'X......X..X.....', snare:'........X.......', clap:'........X.......', hhc:'x.x.x.x.x.x.xxxx'},
+    snd:{kick:{decay:1.2, tune:-3, x:.35}},
+    d:`<b>Trap</b> : le tempo est rapide mais on le ressent deux fois plus lent (on dit <b>demi-tempo</b>) car la caisse claire ne tombe que sur le 3. Charley en croches puis en rafale, grosse caisse « 808 » très longue.`},
+  shuffle:{nom:'Shuffle blues', bpm:88, swing:1, res:8,
+    p:{kick:'X.......X.....x.', snare:'....X.......X...', hhc:'X.x.X.x.X.x.X.x.'},
+    d:`<b>Shuffle blues</b> : rythme <b>ternaire</b>. Le swing à 100 % sur les croches décale chaque « ke » au dernier tiers du temps : « 1 - ke, 2 - ke… ». Écris exactement les mêmes cases en mettant le swing à 0 % : c'est du rock binaire.`},
+  reggae:{nom:'Reggae', bpm:76, swing:.45, res:8,
+    p:{kick:'........X.......', rim:'........X.......', hhc:'x.x.x.x.x.x.x.x.'},
+    d:`<b>Reggae « one drop »</b> : pas de grosse caisse sur le 1 ! Grosse caisse et cercle tombent ensemble <b>uniquement sur le 3</b>. Le charley est un peu swingué.`},
+  bossa:{nom:'Bossa nova', bpm:70, swing:0, res:16,
+    p:{kick:'x..xx..xx..xx..x', rim:'X..X..X...X..X..', hhc:'xxxxxxxxxxxxxxxx'},
+    d:`<b>Bossa nova</b> : ici chaque case vaut une <b>croche</b> (la grille fait deux mesures à 2 temps). Le cercle joue la clave de la bossa, la grosse caisse balance comme une ligne de basse, le charley est régulier comme un shaker.`},
+  vide:{nom:'Grille vide', bpm:100, swing:0, res:8, p:{},
+    d:`<b>À toi de composer !</b> Touche les cases du séquenceur, ou lance la lecture, active <b>Enregistrer</b> et joue sur les pads.`},
+};
+
+/* ================= AUDIO ================= */
+const AC = new (window.AudioContext||window.webkitAudioContext)();
+const comp = AC.createDynamicsCompressor();
+comp.threshold.value=-8; comp.knee.value=6; comp.ratio.value=4; comp.attack.value=.003; comp.release.value=.15;
+const master = AC.createGain(); master.gain.value=S.master;
+master.connect(comp); comp.connect(AC.destination);
+
+const NB = new WeakMap();
+function noise(c,t,dur){
+  let b=NB.get(c);
+  if(!b){ const n=Math.floor(c.sampleRate*2); b=c.createBuffer(1,n,c.sampleRate); const d=b.getChannelData(0); for(let i=0;i<n;i++) d[i]=Math.random()*2-1; NB.set(c,b); }
+  const s=c.createBufferSource(); s.buffer=b; s.loop=true; s.start(t,Math.random()*1.9); s.stop(t+dur+.05); return s;
+}
+function vca(c,dest,t,peak,a,d){
+  const g=c.createGain(); g.gain.setValueAtTime(.0001,t);
+  g.gain.exponentialRampToValueAtTime(Math.max(peak,.0002),t+a);
+  g.gain.exponentialRampToValueAtTime(.0001,t+a+d);
+  g.connect(dest); return g;
+}
+function osc(c,type,f,t,dur){ const o=c.createOscillator(); o.type=type; o.frequency.setValueAtTime(f,t); o.start(t); o.stop(t+dur+.05); return o; }
+function filt(c,type,f,q){ const b=c.createBiquadFilter(); b.type=type; b.frequency.value=Math.min(f,c.sampleRate*.45); b.Q.value=q||.7; return b; }
+const RATIOS=[2,3,4.16,5.43,6.79,8.21];
+function metal(c,t,f,dur,dest){ const m=c.createGain(); m.gain.value=.3; RATIOS.forEach(r=>osc(c,'square',f*r,t,dur).connect(m)); m.connect(dest); }
+let openHats=[];
+
+const VOICE = {
+  kick(c,out,t,p,v,s){ const f=s.base*2**(p.tune/12), d=p.decay, L=p.level*v;
+    const o=osc(c,'sine',f*(1+6*p.x),t,d); o.frequency.exponentialRampToValueAtTime(f,t+.02+.06*p.x);
+    o.connect(vca(c,out,t,L,.002,d));
+    const n=noise(c,t,.03), h=filt(c,'highpass',1500); n.connect(h); h.connect(vca(c,out,t,L*.25,.001,.015));
+    return d+.01; },
+  snare(c,out,t,p,v,s){ const f=s.base*2**(p.tune/12), d=p.decay, L=p.level*v*.85;
+    const o=osc(c,'triangle',f*1.6,t,d); o.frequency.exponentialRampToValueAtTime(f,t+.03);
+    o.connect(vca(c,out,t,L*(1-.75*p.x)*1.1,.001,d*.55));
+    const n=noise(c,t,d), h=filt(c,'highpass',1400), pk=filt(c,'peaking',4000,1); pk.gain.value=4;
+    n.connect(h); h.connect(pk); pk.connect(vca(c,out,t,L*(.15+.85*p.x),.001,d));
+    return d+.01; },
+  rim(c,out,t,p,v,s){ const f=s.base*2**(p.tune/12), d=p.decay, L=p.level*v;
+    osc(c,'triangle',f,t,d).connect(vca(c,out,t,L*.8,.0005,d*.7));
+    const n=noise(c,t,d), b=filt(c,'bandpass',f*4.5,2); n.connect(b); b.connect(vca(c,out,t,L*1.6,.0005,d*.6));
+    return d+.01; },
+  clap(c,out,t,p,v,s){ const f=s.base*2**(p.tune/12), d=p.decay, L=p.level*v*1.8, sp=.006+.014*p.x;
+    const n=noise(c,t,3*sp+d), b=filt(c,'bandpass',f,1.3), g=c.createGain(); n.connect(b); b.connect(g); g.connect(out);
+    const G=g.gain; G.setValueAtTime(.0001,t);
+    for(let i=0;i<3;i++){ const tt=t+i*sp; G.setValueAtTime(L*1.5,tt); G.exponentialRampToValueAtTime(L*.12,tt+sp*.95); }
+    const t3=t+3*sp; G.setValueAtTime(L*1.3,t3); G.exponentialRampToValueAtTime(.0001,t3+d);
+    return 3*sp+d+.01; },
+  hhc(c,out,t,p,v,s){ return hat(c,out,t,p,v,s,false); },
+  hho(c,out,t,p,v,s){ return hat(c,out,t,p,v,s,true); },
+  tomh(c,out,t,p,v,s){ return tom(c,out,t,p,v,s); },
+  toml(c,out,t,p,v,s){ return tom(c,out,t,p,v,s); },
+  crash(c,out,t,p,v,s){ const k=2**(p.tune/12), d=p.decay, L=p.level*v*1.4;
+    const g=vca(c,out,t,L,.003,d), hp=filt(c,'highpass',4500*Math.min(k,1.6)); hp.connect(g);
+    const mg=c.createGain(); mg.gain.value=(1-p.x)*.9; mg.connect(hp); metal(c,t,s.base*k,d,mg);
+    const n=noise(c,t,d), ng=c.createGain(); ng.gain.value=.15+p.x*.7; n.connect(ng); ng.connect(hp);
+    return d+.01; },
+  bell(c,out,t,p,v,s){ const f=s.base*2**(p.tune/12), d=p.decay, L=p.level*v*1.6;
+    const m=c.createGain(); m.gain.value=.45;
+    osc(c,'square',f,t,d+.03).connect(m); osc(c,'square',f*1.4815,t,d+.03).connect(m);
+    const b=filt(c,'bandpass',f*2.2,1); m.connect(b);
+    const g=c.createGain(); b.connect(g); g.connect(out); const G=g.gain;
+    G.setValueAtTime(.0001,t); G.exponentialRampToValueAtTime(L,t+.001); G.exponentialRampToValueAtTime(L*.3,t+.03); G.exponentialRampToValueAtTime(.0001,t+.03+d);
+    return d+.04; },
+};
+function hat(c,out,t,p,v,s,open){
+  const k=2**(p.tune/12), d=p.decay, L=p.level*v*2.6;
+  const choke=c.createGain(); choke.connect(out);
+  const g=vca(c,choke,t,L,.001,d);
+  const hp=filt(c,'highpass',7000*Math.min(k,1.6)); hp.connect(g);
+  const bp=filt(c,'bandpass',10000,.8); bp.connect(hp);
+  const mg=c.createGain(); mg.gain.value=1-p.x; mg.connect(bp); metal(c,t,s.base*k,d,mg);
+  const n=noise(c,t,d), ng=c.createGain(); ng.gain.value=p.x*.8; n.connect(ng); ng.connect(hp);
+  if(c===AC){
+    if(open) openHats.push({choke,start:t,end:t+d});
+    else { openHats.forEach(h=>{ if(h.start<=t && h.end>t) h.choke.gain.setTargetAtTime(0,t,.008); }); openHats=openHats.filter(h=>h.start>t); }
+  }
+  return d+.01;
+}
+function tom(c,out,t,p,v,s){ const f=s.base*2**(p.tune/12), d=p.decay, L=p.level*v;
+  const o=osc(c,'sine',f*(1+1.2*p.x),t,d); o.frequency.exponentialRampToValueAtTime(f,t+.12); o.connect(vca(c,out,t,L,.002,d));
+  const n=noise(c,t,.05), b=filt(c,'bandpass',f*5,1); n.connect(b); b.connect(vca(c,out,t,L*.15,.001,.04));
+  return d+.01; }
+
+let lastPlay=null; // {t, dur} du son sélectionné
+function play(i,t,vel){
+  const s=SND[i]; const dur=VOICE[s.id](AC,master,t,SP[i],vel,s);
+  if(i===S.sel) lastPlay={t,dur};
+  return dur;
+}
+function audioOn(){ if(AC.state!=='running') AC.resume(); document.getElementById('startnote').classList.remove('show'); }
+
+/* ================= SÉQUENCEUR (horloge) ================= */
+let playing=false, curStep=0, nextTime=0, timer=null;
+const vq=[], sched=[], skip=new Set();
+const stepDur=()=>60/S.bpm/4;
+function swingOffset(step){
+  const sd=stepDur();
+  if(S.res===8) return step%4===2 ? S.swing*sd*2/3 : 0;
+  return step%2===1 ? S.swing*sd/3 : 0;
+}
+function scheduleStep(step,t){
+  const hits=[];
+  for(let r=0;r<ROWS;r++){
+    const v=pat[r][step], key=r+'_'+step;
+    if(skip.has(key)){ skip.delete(key); continue; }
+    if(v){ play(r,t,v===2?1:.62); hits.push(r); }
+  }
+  if(S.metro && step%4===0){
+    const o=osc(AC,'sine',step===0?2000:1400,t,.04); o.connect(vca(AC,master,t,.35,.001,.035));
+  }
+  vq.push({t,step,hits}); sched.push({t,step}); if(sched.length>24) sched.shift();
+}
+function tick(){
+  while(nextTime < AC.currentTime+.1){
+    scheduleStep(curStep, nextTime+swingOffset(curStep));
+    nextTime+=stepDur(); curStep=(curStep+1)%16;
+  }
+}
+function start(){ audioOn(); playing=true; curStep=0; nextTime=AC.currentTime+.06; skip.clear(); tick(); timer=setInterval(tick,25); updTransport(); }
+function stop(){ playing=false; clearInterval(timer); vq.length=0; sched.length=0; setNow(-1); updTransport(); }
+function toggle(){ playing?stop():start(); }
+
+function recHit(i){
+  const now=AC.currentTime;
+  const cands=sched.slice(-8).map(c=>({...c,future:false}));
+  cands.push({t:nextTime+swingOffset(curStep),step:curStep,future:true});
+  let best=null; for(const c of cands) if(!best||Math.abs(c.t-now)<Math.abs(best.t-now)) best=c;
+  if(!best) return;
+  if(!pat[i][best.step]) pat[i][best.step]=1;
+  if(best.future) skip.add(i+'_'+best.step);
+  paintCell(i,best.step); markCustom(); save();
+}
+
+/* ================= INTERFACE ================= */
+const $=id=>document.getElementById(id);
+const fmtS=v=>v<1?Math.round(v*1000)+' ms':v.toFixed(2).replace('.',',')+' s';
+const fmtPct=v=>Math.round(v*100)+' %';
+
+function slider(parent,o){
+  const w=document.createElement('div'); w.className='slider';
+  w.innerHTML=`<div class="sl-top"><label>${o.label}</label><output></output></div><input type="range">`;
+  const inp=w.querySelector('input'), out=w.querySelector('output');
+  inp.setAttribute('aria-label',o.label);
+  const N=1000;
+  const toPos=v=>o.log? Math.log(v/o.min)/Math.log(o.max/o.min)*N : v;
+  const fromPos=x=>o.log? o.min*Math.pow(o.max/o.min,x/N) : +x;
+  if(o.log){ inp.min=0; inp.max=N; inp.step=1; } else { inp.min=o.min; inp.max=o.max; inp.step=o.step||.01; }
+  const show=()=>{ const v=o.get(); inp.value=toPos(v); out.textContent=o.fmt(v); inp.style.setProperty('--p',((inp.value-inp.min)/(inp.max-inp.min)*100)+'%'); };
+  inp.addEventListener('input',()=>{ o.set(fromPos(inp.value)); show(); });
+  show(); parent.appendChild(w); w.refresh=show; return w;
+}
+
+/* --- pads --- */
+const padEls={};
+function buildPads(){
+  const box=$('pads');
+  PAD_LAYOUT.forEach(([id,code,lab])=>{
+    const i=IDX[id], s=SND[i], b=document.createElement('button');
+    b.className='pad'; b.style.setProperty('--c',s.col);
+    b.innerHTML=`<span>${s.court}</span><span class="ck">${lab}</span>`;
+    b.setAttribute('aria-label',s.nom);
+    b.addEventListener('pointerdown',e=>{ e.preventDefault(); padHit(i,.9); });
+    b.addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); padHit(i,.9); } });
+    box.appendChild(b); padEls[i]=b;
+  });
+}
+const flashT={};
+function flash(i){ const el=padEls[i]; if(!el) return; el.classList.remove('hit'); void el.offsetWidth; el.classList.add('hit'); clearTimeout(flashT[i]); flashT[i]=setTimeout(()=>el.classList.remove('hit'),110); }
+function padHit(i,vel){
+  audioOn(); play(i,AC.currentTime,vel); flash(i);
+  if(S.rec && playing) recHit(i);
+  if(S.sel!==i) select(i);
+}
+
+/* --- grille --- */
+const cellEls=[], cntEls=[], lblEls=[];
+function buildSeq(){
+  const g=$('seq'); g.innerHTML='';
+  const head=document.createElement('div'); head.className='srow count';
+  head.appendChild(document.createElement('span'));
+  COUNT.forEach((w,j)=>{ const sp=document.createElement('span'); sp.textContent=w; if(j%4===0) sp.className='beat'; head.appendChild(sp); cntEls.push(sp); });
+  g.appendChild(head);
+  SND.forEach((s,r)=>{
+    const row=document.createElement('div'); row.className='srow'; row.style.setProperty('--c',s.col);
+    const l=document.createElement('button'); l.className='slbl'; l.innerHTML=`<span class="lg">${s.nom}</span><span class="ct">${s.court}</span>`; l.style.setProperty('--c',s.col);
+    l.title='Écouter et régler : '+s.nom;
+    l.addEventListener('click',()=>{ audioOn(); play(r,AC.currentTime,.9); flash(r); select(r); });
+    row.appendChild(l); lblEls[r]=l; cellEls[r]=[];
+    for(let j=0;j<16;j++){
+      const c=document.createElement('button'); c.className='cell'+(Math.floor(j/4)%2?' b':'');
+      c.addEventListener('click',()=>{ pat[r][j]=(pat[r][j]+1)%3; paintCell(r,j); markCustom(); save(); if(pat[r][j] && !playing){ audioOn(); play(r,AC.currentTime,pat[r][j]===2?1:.62); flash(r); } });
+      row.appendChild(c); cellEls[r][j]=c;
+    }
+    g.appendChild(row);
+  });
+  paintAll();
+}
+function paintCell(r,j){
+  const c=cellEls[r][j], v=pat[r][j];
+  c.classList.toggle('v1',v===1); c.classList.toggle('v2',v===2);
+  c.setAttribute('aria-label',`${SND[r].nom}, case ${j+1} (${COUNT[j]}) : ${['vide','note','accent'][v]}`);
+}
+function paintAll(){ for(let r=0;r<ROWS;r++) for(let j=0;j<16;j++) paintCell(r,j); }
+let nowCol=-1;
+function setNow(j){
+  if(nowCol>=0){ cntEls[nowCol].classList.remove('now'); for(let r=0;r<ROWS;r++) cellEls[r][nowCol].classList.remove('now'); }
+  nowCol=j;
+  if(j>=0){ cntEls[j].classList.add('now'); for(let r=0;r<ROWS;r++) cellEls[r][j].classList.add('now'); }
+}
+
+/* --- rythmes de départ --- */
+function buildPresets(){
+  const box=$('presets');
+  Object.entries(PRESETS).forEach(([k,p])=>{
+    const b=document.createElement('button'); b.className='pbtn'; b.dataset.k=k; b.textContent=p.nom;
+    b.addEventListener('click',()=>loadPreset(k)); box.appendChild(b);
+  });
+}
+function loadPreset(k){
+  const p=PRESETS[k]; S.preset=k; S.bpm=p.bpm; S.swing=p.swing; S.res=p.res;
+  pat=Array.from({length:ROWS},()=>Array(16).fill(0));
+  Object.entries(p.p).forEach(([id,str])=>{ [...str].forEach((ch,j)=>{ pat[IDX[id]][j]= ch==='X'?2: ch==='x'?1:0; }); });
+  SP=SND.map((s,i)=>defParams(i));
+  if(p.snd) Object.entries(p.snd).forEach(([id,o])=>Object.assign(SP[IDX[id]],o));
+  paintAll(); refreshControls(); renderSound(); save();
+}
+function refreshPresetUI(){
+  document.querySelectorAll('.pbtn').forEach(b=>b.classList.toggle('on',b.dataset.k===S.preset));
+  $('pdesc').innerHTML = S.preset && PRESETS[S.preset] ? PRESETS[S.preset].d : '<b>Ton rythme</b> : modifié à partir d\'un rythme de départ, ou reçu par un lien.';
+}
+function markCustom(){ if(S.preset!==null && S.preset!=='vide'){ S.preset=null; refreshPresetUI(); } }
+
+/* --- réglages du séquenceur --- */
+let slBpm,slSwing,slMaster;
+function buildSeqControls(){
+  slBpm=slider($('sl-bpm'),{label:'Tempo',min:50,max:180,step:1,fmt:v=>Math.round(v)+' bpm',get:()=>S.bpm,set:v=>{S.bpm=Math.round(v); updTransport(); save();}});
+  slMaster=slider($('sl-master'),{label:'Volume général',min:0,max:1,step:.01,fmt:fmtPct,get:()=>S.master,set:v=>{S.master=v; master.gain.setTargetAtTime(v,AC.currentTime,.02); save();}});
+  slSwing=slider($('sl-swing'),{label:'Swing',min:0,max:1,step:.01,fmt:v=>v===0?'0 % (binaire)':v>=.99?'100 % (ternaire)':fmtPct(v),get:()=>S.swing,set:v=>{S.swing=v; save();}});
+  document.querySelectorAll('#seg-res button').forEach(b=>b.addEventListener('click',()=>{ S.res=+b.dataset.val; refreshControls(); save(); }));
+  $('metroBtn').addEventListener('click',()=>{ S.metro=!S.metro; refreshControls(); save(); });
+  $('clearBtn').addEventListener('click',()=>{ pat=Array.from({length:ROWS},()=>Array(16).fill(0)); S.preset='vide'; paintAll(); refreshPresetUI(); save(); });
+  $('linkBtn').addEventListener('click',copyLink);
+}
+function refreshControls(){
+  slBpm.refresh(); slSwing.refresh(); slMaster.refresh();
+  document.querySelectorAll('#seg-res button').forEach(b=>b.classList.toggle('on',+b.dataset.val===S.res));
+  $('metroBtn').setAttribute('aria-pressed',S.metro);
+  refreshPresetUI(); updTransport();
+}
+function updTransport(){
+  $('bpmLbl').textContent=S.bpm+' bpm';
+  const pb=$('playBtn'); pb.textContent=playing?'■ Arrêt':'▶ Lecture'; pb.classList.toggle('on',playing); pb.setAttribute('aria-pressed',playing);
+  const rb=$('recBtn'); rb.classList.toggle('on',S.rec); rb.setAttribute('aria-pressed',S.rec);
+}
+
+/* --- son sélectionné --- */
+let sndSliders=[];
+function select(i){
+  S.sel=i;
+  Object.entries(padEls).forEach(([k,el])=>el.classList.toggle('sel',+k===i));
+  lblEls.forEach((l,r)=>l.classList.toggle('sel',r===i));
+  const s=SND[i];
+  $('m-snd').style.setProperty('--c',s.col);
+  $('snd-name').textContent=s.nom;
+  $('snd-recette').innerHTML=s.recette.map(r=>`<span>${r}</span>`).join('<span class="plus">+</span>');
+  $('snd-aide').innerHTML=s.aide;
+  const box=$('snd-sliders'); box.innerHTML=''; box.className='two';
+  const p=()=>SP[S.sel];
+  const ch=()=>{ save(); markCustom(); renderSoon(); };
+  sndSliders=[
+    slider(box,{label:'Hauteur',min:-12,max:12,step:1,get:()=>p().tune,set:v=>{p().tune=Math.round(v); ch();},
+      fmt:v=>{ const st=(v>0?'+':v<0?'−':'')+Math.abs(v)+' demi-ton'+(Math.abs(v)>1?'s':''); return s.hz? st+' · '+Math.round(s.base*2**(v/12))+' Hz' : st; }}),
+    slider(box,{label:'Déclin',min:s.dmin,max:s.dmax,log:true,fmt:fmtS,get:()=>p().decay,set:v=>{p().decay=v; ch();}}),
+  ];
+  if(s.x!==null) sndSliders.push(slider(box,{label:s.xl,min:0,max:1,step:.01,fmt:fmtPct,get:()=>p().x,set:v=>{p().x=v; ch();}}));
+  sndSliders.push(slider(box,{label:'Volume',min:0,max:1,step:.01,fmt:fmtPct,get:()=>p().level,set:v=>{p().level=v; ch();}}));
+  lastPlay=null; renderSound(); save();
+}
+
+/* --- forme d'onde (rendu hors temps réel) --- */
+let wave=null, renderTok=0, rT=null;
+function renderSoon(){ clearTimeout(rT); rT=setTimeout(renderSound,60); }
+function renderSound(){
+  const OC=window.OfflineAudioContext||window.webkitOfflineAudioContext; if(!OC) return;
+  const i=S.sel, s=SND[i], p=SP[i];
+  const len=Math.min(p.decay+(s.id==='clap'?.07:.04)+.02, 4.2), sr=44100;
+  const oc=new OC(1,Math.ceil(sr*len),sr);
+  VOICE[s.id](oc,oc.destination,0,p,1,s);
+  const tok=++renderTok;
+  const pr=oc.startRendering();
+  const done=buf=>{ if(tok!==renderTok) return; wave={data:buf.getChannelData(0),len,col:s.col,cols:null}; drawWave(); };
+  if(pr && pr.then) pr.then(done); else oc.oncomplete=e=>done(e.renderedBuffer);
+}
+const cv=$('cv-wave');
+function drawWave(){
+  const dpr=window.devicePixelRatio||1, w=cv.clientWidth, h=cv.clientHeight; if(!w) return;
+  if(cv.width!==Math.round(w*dpr)||cv.height!==Math.round(h*dpr)){ cv.width=Math.round(w*dpr); cv.height=Math.round(h*dpr); if(wave) wave.cols=null; }
+  const g=cv.getContext('2d'); g.setTransform(dpr,0,0,dpr,0,0); g.clearRect(0,0,w,h);
+  const top=8, bot=h-18, mid=(top+bot)/2, amp=(bot-top)/2;
+  g.font='11px JetBrains Mono, monospace';
+  if(!wave){ g.fillStyle='#9aa1ad'; g.fillText('…',8,16); return; }
+  // graduations
+  const steps=[.005,.01,.02,.05,.1,.2,.5,1]; let st=steps.find(x=>wave.len/x<=6)||1;
+  g.strokeStyle='#262a33'; g.fillStyle='#9aa1ad'; g.lineWidth=1;
+  for(let x=0;x<=wave.len+1e-9;x+=st){ const px=Math.round(x/wave.len*(w-2))+.5; g.beginPath(); g.moveTo(px,top); g.lineTo(px,bot); g.stroke(); if(px<w-110) g.fillText(fmtS(x).replace(' ',''),px+3,h-5); }
+  g.strokeStyle='#3a3f4b'; g.beginPath(); g.moveTo(0,mid+.5); g.lineTo(w,mid+.5); g.stroke();
+  // onde : min/max par colonne
+  if(!wave.cols){ const d=wave.data, n=d.length, cols=[]; for(let x=0;x<w;x++){ const a=Math.floor(x/w*n), b=Math.max(a+1,Math.floor((x+1)/w*n)); let mn=1e9,mx=-1e9; for(let k=a;k<b;k++){ const v=d[k]; if(v<mn) mn=v; if(v>mx) mx=v; } cols.push([mn,mx]); } wave.cols=cols; }
+  g.strokeStyle=wave.col; g.lineWidth=1; g.beginPath();
+  wave.cols.forEach(([mn,mx],x)=>{ const y1=mid-Math.min(1,mx)*amp*.95, y2=mid-Math.max(-1,mn)*amp*.95; g.moveTo(x+.5,y1); g.lineTo(x+.5,Math.max(y2,y1+1)); });
+  g.stroke();
+  // tête de lecture
+  if(lastPlay){ const e=AC.currentTime-lastPlay.t; if(e>=0 && e<=wave.len){ const px=e/wave.len*w; g.fillStyle='rgba(255,255,255,.08)'; g.fillRect(0,top,px,bot-top); g.strokeStyle='#fff'; g.lineWidth=1.5; g.beginPath(); g.moveTo(px,top); g.lineTo(px,bot); g.stroke(); } }
+  g.fillStyle='#9aa1ad'; g.fillText('temps →',w-58,h-5);
+}
+let waveActive=false;
+function frame(){
+  const now=AC.currentTime;
+  while(vq.length && vq[0].t<=now){ const e=vq.shift(); if(playing) setNow(e.step); e.hits.forEach(flash); }
+  const act=lastPlay && now-lastPlay.t<= (wave?wave.len:0)+.05;
+  if(act||waveActive) drawWave(); waveActive=act;
+  requestAnimationFrame(frame);
+}
+window.addEventListener('resize',()=>{ if(wave) wave.cols=null; drawWave(); });
+
+/* --- lien de partage et sauvegarde --- */
+function encode(){
+  const q=new URLSearchParams();
+  q.set('t',S.bpm); q.set('sw',Math.round(S.swing*100)); q.set('res',S.res);
+  q.set('p',pat.map(r=>r.join('')).join(''));
+  q.set('s',SP.map(p=>[p.tune,Math.round(p.decay*1000),Math.round(p.level*100),p.x==null?'':Math.round(p.x*100)].join('_')).join('~'));
+  return q.toString();
+}
+function decode(str){
+  const q=new URLSearchParams(str); const p=q.get('p'); if(!p||p.length!==ROWS*16||/[^012]/.test(p)) return false;
+  S.bpm=Math.min(180,Math.max(50,+q.get('t')||100)); S.swing=Math.min(1,Math.max(0,(+q.get('sw')||0)/100)); S.res=q.get('res')==='16'?16:8;
+  pat=Array.from({length:ROWS},(_,r)=>[...p.slice(r*16,r*16+16)].map(Number));
+  const s=(q.get('s')||'').split('~');
+  SP=SND.map((d,i)=>{ const o=defParams(i), f=(s[i]||'').split('_');
+    if(f.length>=3){ const tu=+f[0], de=+f[1]/1000, le=+f[2]/100, xx=f[3]===''||f[3]==null?null:+f[3]/100;
+      if(isFinite(tu)) o.tune=Math.max(-12,Math.min(12,Math.round(tu)));
+      if(isFinite(de)&&de>0) o.decay=Math.max(d.dmin,Math.min(d.dmax,de));
+      if(isFinite(le)) o.level=Math.max(0,Math.min(1,le));
+      if(d.x!==null && xx!==null && isFinite(xx)) o.x=Math.max(0,Math.min(1,xx)); }
+    return o; });
+  S.preset=null; return true;
+}
+function copyLink(){
+  const url=location.origin+location.pathname+'#'+encode();
+  const ok=()=>{ $('status').textContent='Lien copié ! Colle-le dans un message pour partager ce rythme.'; };
+  const ko=()=>{ $('status').textContent=url; };
+  try{ navigator.clipboard.writeText(url).then(ok,ko); }catch(e){ ko(); }
+}
+const KEY='drum-pad-v1'; let saveT=null;
+function save(){ clearTimeout(saveT); saveT=setTimeout(()=>{ try{ localStorage.setItem(KEY,JSON.stringify({q:encode(),preset:S.preset,metro:S.metro,master:S.master,sel:S.sel})); }catch(e){} },300); }
+function restore(){
+  if(location.hash.length>2 && decode(location.hash.slice(1))){ try{ history.replaceState(null,'',location.pathname); }catch(e){} return true; }
+  try{ const o=JSON.parse(localStorage.getItem(KEY)||'null'); if(o && decode(o.q)){ S.preset=o.preset in PRESETS ? o.preset : null; S.metro=!!o.metro; if(o.master>=0&&o.master<=1){ S.master=o.master; master.gain.value=o.master; } if(o.sel>=0&&o.sel<ROWS) S.sel=o.sel; return true; } }catch(e){}
+  return false;
+}
+
+/* --- clavier d'ordinateur et transport --- */
+const KEYMAP=Object.fromEntries(PAD_LAYOUT.map(([id,code])=>[code,IDX[id]]));
+window.addEventListener('keydown',e=>{
+  if(e.ctrlKey||e.metaKey||e.altKey) return;
+  if(e.code==='Space'){ e.preventDefault(); if(!e.repeat){ if(document.activeElement && document.activeElement!==document.body) document.activeElement.blur(); toggle(); } return; }
+  if(e.code in KEYMAP){ e.preventDefault(); if(!e.repeat) padHit(KEYMAP[e.code],.9); }
+});
+window.addEventListener('keyup',e=>{ if(e.code==='Space') e.preventDefault(); });
+$('playBtn').addEventListener('click',toggle);
+$('recBtn').addEventListener('click',()=>{ S.rec=!S.rec; if(S.rec && !playing) start(); updTransport(); });
+$('bpmDown').addEventListener('click',()=>{ S.bpm=Math.max(50,S.bpm-2); slBpm.refresh(); updTransport(); save(); });
+$('bpmUp').addEventListener('click',()=>{ S.bpm=Math.min(180,S.bpm+2); slBpm.refresh(); updTransport(); save(); });
+$('listenBtn').addEventListener('click',()=>{ audioOn(); play(S.sel,AC.currentTime+.01,.9); flash(S.sel); });
+$('resetBtn').addEventListener('click',()=>{ SP[S.sel]=defParams(S.sel); markCustom(); select(S.sel); });
+
+/* ================= DÉMARRAGE ================= */
+buildPads(); buildSeq(); buildPresets(); buildSeqControls();
+if(!restore()) loadPreset('rock');
+paintAll(); refreshControls(); select(S.sel);
+if(AC.state!=='running') $('startnote').classList.add('show');
+document.addEventListener('pointerdown',()=>{ if(AC.state!=='running') AC.resume(); },{once:true});
+requestAnimationFrame(frame);
+
+/* ================= APPLI INSTALLABLE ================= */
+try{ if('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) navigator.serviceWorker.register('sw.js').catch(()=>{}); }catch(e){}
+let askInstall=null; const instBtn=$('install');
+window.addEventListener('beforeinstallprompt',e=>{ e.preventDefault(); askInstall=e; instBtn.hidden=false; });
+instBtn.addEventListener('click',async()=>{ if(!askInstall) return; askInstall.prompt(); try{ await askInstall.userChoice; }catch(e){} askInstall=null; instBtn.hidden=true; });
+window.addEventListener('appinstalled',()=>{ instBtn.hidden=true; });
+</script>
+</body>
+</html>
