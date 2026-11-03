@@ -232,6 +232,7 @@ footer a{color:inherit}
         <ul>
           <li><b>Hauteur</b> : accorde le son plus grave ou plus aigu, en demi-tons. Les batteurs accordent aussi leurs fûts !</li>
           <li><b>Déclin</b> : la durée du son, du coup de baguette jusqu'au silence. Regarde la forme d'onde s'allonger ou se raccourcir.</li>
+          <li><b>Brillance</b> (kit acoustique) : un filtre passe-bas qui retire les aigus. Le son s'assombrit, comme une batterie entendue à travers un mur.</li>
           <li><b>Volume</b> : le niveau de ce son dans le mélange, pour équilibrer la batterie.</li>
         </ul>
         <p>Une batterie électronique n'enregistre rien : elle <b>fabrique</b> chaque son avec les mêmes briques qu'un synthétiseur (oscillateurs, bruit, filtres, enveloppes). Change de <b>kit</b> (en haut) et compare : même rythme, même instrument, mais une tout autre fabrication du son. Pour explorer ces briques une par une, ouvre le <a href="https://mlevan8395.github.io/mini-synthe/">mini-synthé pédagogique</a>.</p>
@@ -240,7 +241,7 @@ footer a{color:inherit}
     </div>
   </details>
 </main>
-<footer><p>Drum pad pédagogique · Mickael Le Van · logiciel libre (<a href="https://github.com/MLeVan8395/drum-pad">code source</a>) · aucune donnée collectée. Au casque, la grosse caisse s'entend bien mieux.</p></footer>
+<footer><p>Drum pad pédagogique · Mickael Le Van · logiciel libre · sons du kit acoustique : <a href="https://github.com/sfzinstruments/virtuosity_drums">Virtuosity Drums</a> (Versilian Studios, CC0) (<a href="https://github.com/MLeVan8395/drum-pad">code source</a>) · aucune donnée collectée. Au casque, la grosse caisse s'entend bien mieux.</p></footer>
 
 <script>
 /* ================= LES SONS ================= */
@@ -277,43 +278,42 @@ const SND = [
    aide:`<p>La célèbre cloche (<i>cowbell</i>) des boîtes à rythmes des années 80 : seulement <b>deux oscillateurs carrés</b>, à 540 et 800 Hz. Ces deux fréquences ne forment pas un intervalle « juste », et c'est ce frottement qui sonne métallique. Un filtre passe-bande arrondit le tout.</p><p>Très utilisée dans la musique latine, le funk et la pop électronique.</p>`},
 ];
 const KITS = {
-  acou:{nom:'Acoustique', desc:`Une vraie batterie : des fûts, des peaux et des cymbales frappés avec des baguettes. Ici, chaque son est imité par le calcul, en copiant ce qui se passe dans l'instrument.`},
+  acou:{nom:'Acoustique', desc:`De <b>vrais enregistrements</b> d'une batterie de jazz (on dit des <i>échantillons</i>, en anglais <i>samples</i>). Changer la hauteur d'un échantillon, c'est le lire plus vite ou plus lentement : il devient aussi plus court ou plus long. Sons : Virtuosity Drums, Versilian Studios (domaine public).`},
   elec:{nom:'Électronique', desc:`Les boîtes à rythmes des années 80 (comme la célèbre TR-808) : tous les sons sont fabriqués avec des oscillateurs, du bruit et des filtres, comme sur un synthétiseur.`},
   bit:{nom:'8 bits', desc:`Les sons des consoles de jeux vidéo des années 80 : seulement des ondes carrées, une onde triangle et un bruit très granuleux.`},
 };
 const KDEF = {
   elec:{},
   acou:{
-    kick:{base:58, decay:.35, dmin:.1, dmax:1, level:.95, x:.4, xl:'Batte : feutre ↔ bois',
-      recette:['Choc de la batte','Peau qui vibre en grave','Résonance du fût'],
-      aide:`<p>Le pied appuie sur une pédale : une <b>batte</b> frappe la grande peau. On entend d'abord le <b>choc</b> de la batte (aigu, très court), puis la <b>peau</b> qui vibre en grave et le <b>fût</b> qui résonne.</p><p>Le curseur <b>Batte</b> passe d'une batte en feutre (son rond) à une batte en bois ou en plastique (son qui claque, qu'on entend bien dans le rock et le métal). Compare avec le kit électronique : là-bas, pas de choc, seulement un oscillateur qui plonge.</p>`},
-    snare:{base:190, decay:.3, dmin:.08, dmax:.9, level:.9, x:.6, xl:'Timbre (ressorts)',
-      recette:['Coup de baguette','Peau qui vibre','Ressorts du timbre'],
-      aide:`<p>La baguette frappe la peau du dessus. La peau vibre (le « corps » du son) et fait vibrer la peau du dessous, contre laquelle sont tendus des <b>ressorts métalliques</b> : le <b>timbre</b>. Ce sont eux qui grésillent et donnent le « tchak ».</p><p>Avec le curseur <b>Timbre</b>, tu desserres ou resserres les ressorts. Tout à gauche, il n'y a presque plus de timbre : la caisse claire sonne comme un tom.</p>`},
-    rim:{base:430, decay:.07, dmin:.02, dmax:.25, level:.8,
-      recette:['Baguette posée à plat','Choc sur le cercle','Son boisé'],
+    kick:{file:'grosse-caisse', dur:1, decay:1, dmin:.08, dmax:1, level:.9, x:1, xl:'Brillance (filtre)', hz:false,
+      recette:['Enregistrement','Micro dans la grosse caisse','Micro au-dessus de la batterie'],
+      aide:`<p>Un vrai coup de grosse caisse, enregistré. Le pied appuie sur une pédale : une <b>batte</b> frappe la grande peau. On entend d'abord le <b>choc</b> de la batte, puis la peau qui vibre en grave et le <b>fût</b> qui résonne.</p><p>Compare avec le kit électronique : là-bas, la grosse caisse est un oscillateur dont la hauteur plonge. Change de kit et compare les deux formes d'onde.</p>`},
+    snare:{file:'caisse-claire', dur:.9, decay:.9, dmin:.06, dmax:.9, level:.9, x:1, xl:'Brillance (filtre)', hz:false,
+      recette:['Enregistrement','Coup au centre de la peau'],
+      aide:`<p>La baguette frappe la peau du dessus. La peau vibre et fait vibrer la peau du dessous, contre laquelle sont tendus des <b>ressorts métalliques</b> : le <b>timbre</b>. Ce sont eux qui grésillent et donnent le « tchak ».</p><p>Ferme le filtre (curseur <b>Brillance</b>) : le grésillement du timbre disparaît en premier, car il est fait d'aigus.</p>`},
+    rim:{file:'cercle', dur:.5, decay:.5, dmin:.04, dmax:.5, level:.85, x:1, xl:'Brillance (filtre)', hz:false,
+      recette:['Enregistrement','Baguette posée sur le cercle'],
       aide:`<p>On appelle ce coup <i>cross-stick</i>. Le batteur pose la baguette à plat sur la peau et frappe le <b>cercle</b> de la caisse claire avec l'autre bout : un « toc » boisé et doux.</p><p>On l'entend en bossa nova, en reggae et dans les couplets calmes des ballades, à la place de la caisse claire.</p>`},
-    clap:{base:1100, decay:.35, dmin:.1, dmax:1, level:.8, x:.5, xl:'Écart entre les mains',
-      recette:['Plusieurs mains','Petits décalages','Réverbération de la pièce'],
-      aide:`<p>Ce n'est pas un élément de la batterie : ce sont de <b>vraies mains</b> ! Quand plusieurs personnes frappent ensemble, les claps arrivent avec quelques millisecondes d'écart, et la pièce ajoute un peu de <b>réverbération</b>.</p><p>Dans la soul, le gospel et la pop, on double souvent la caisse claire avec des claps sur 2 et 4.</p>`},
-    hhc:{decay:.07, dmin:.02, dmax:.25, level:.6, x:.5, xl:'Brillance',
-      recette:['Deux cymbales serrées','Des dizaines de fréquences','Déclin très court'],
-      aide:`<p>Deux cymbales l'une sur l'autre, montées sur un pied avec une pédale. Pédale enfoncée, elles sont <b>serrées</b> : la baguette donne un « tsk » court et sec.</p><p>Une cymbale vibre sur des dizaines de fréquences qui n'ont pas de rapport simple entre elles : c'est pour ça qu'elle ne joue pas une note. Le charley fermé <b>coupe</b> le charley ouvert, comme le pied qui referme les cymbales.</p>`},
-    hho:{decay:.7, dmin:.15, dmax:2.5, level:.5, x:.5, xl:'Brillance',
-      recette:['Deux cymbales entrouvertes','Des dizaines de fréquences','Déclin long'],
-      aide:`<p>Pédale relâchée, les deux cymbales se touchent à peine : elles <b>frissonnent</b> l'une contre l'autre et le son dure longtemps.</p><p>Le batteur ouvre souvent le charley sur le « ke » et le referme avec le pied sur le temps suivant : « tsss-tchk ».</p>`},
-    tomh:{base:190, decay:.5, dmin:.12, dmax:1.5, level:.85, x:.3, xl:'Chute de hauteur',
-      recette:['Coup de baguette','Peau accordée','Plusieurs vibrations'],
-      aide:`<p>Un fût avec une peau qu'on <b>accorde</b> avec des clés, comme une timbale. Une peau ne vibre pas comme une corde : ses vibrations ne sont pas des harmoniques « justes », d'où ce son rond et un peu sourd. Juste après le coup, la peau est plus tendue : la hauteur <b>descend</b> légèrement.</p><p>Les toms servent surtout aux <b>roulements</b> (les <i>fills</i>) qui annoncent une nouvelle partie du morceau.</p>`},
-    toml:{base:95, decay:.75, dmin:.15, dmax:2, level:.9, x:.3, xl:'Chute de hauteur',
-      recette:['Coup de baguette','Grande peau grave','Plusieurs vibrations'],
-      aide:`<p>Le plus grave des toms, posé au sol à côté du batteur : on l'appelle aussi <b>tom basse</b> ou <i>floor tom</i>. Même recette que le tom aigu, avec une peau plus grande, accordée plus bas, qui résonne plus longtemps.</p>`},
-    crash:{decay:2.6, dmin:.5, dmax:5, level:.5, x:.5, xl:'Brillance',
-      recette:['Grande cymbale fine','Des dizaines de fréquences','Déclin très long'],
-      aide:`<p>Une grande cymbale fine qu'on frappe sur le bord pour <b>marquer un début</b> : un refrain, la fin d'un roulement. Le son « s'ouvre » une fraction de seconde après le coup, puis s'éteint très lentement.</p><p>Pour l'arrêter net, le batteur attrape la cymbale avec la main.</p>`},
-    bell:{base:560, decay:.45, dmin:.08, dmax:1.5, level:.55,
-      recette:['Cloche en métal','Quelques fréquences fortes','Coup de baguette'],
-      aide:`<p>Une vraie <b>cloche</b> en métal (en anglais <i>cowbell</i>), fixée sur la batterie ou tenue à la main. Contrairement aux cymbales, elle n'a que <b>quelques fréquences fortes</b> : on entend presque une note.</p><p>Elle est très présente dans la salsa, la musique latine et le funk.</p>`},
+    clap:{recette:['Bruit en passe-bande','Enveloppe qui repart 3 fois'],
+      aide:`<p>Le clap n'est pas un élément de la batterie : ce sont des mains. La banque de sons utilisée ici n'en contient pas, alors ce kit garde le <b>clap électronique</b> : du bruit filtré, avec une enveloppe qui redémarre trois fois très vite, comme plusieurs mains qui ne tapent pas exactement ensemble.</p>`},
+    hhc:{file:'charley-ferme', dur:.45, decay:.45, dmin:.04, dmax:.45, level:.85, x:1, xl:'Brillance (filtre)', hz:false,
+      recette:['Enregistrement','Deux cymbales serrées'],
+      aide:`<p>Deux cymbales l'une sur l'autre, montées sur un pied avec une pédale. Pédale enfoncée, elles sont <b>serrées</b> : la baguette donne un « tsk » court et sec.</p><p>Le charley fermé <b>coupe</b> le charley ouvert, comme le pied qui referme les cymbales.</p>`},
+    hho:{file:'charley-ouvert', dur:2.2, decay:2.2, dmin:.1, dmax:2.2, level:.75, x:1, xl:'Brillance (filtre)', hz:false,
+      recette:['Enregistrement','Deux cymbales entrouvertes'],
+      aide:`<p>Pédale relâchée, les deux cymbales se touchent à peine : elles <b>frissonnent</b> l'une contre l'autre et le son dure longtemps.</p><p>Le batteur ouvre souvent le charley sur le « ke » et le referme avec le pied sur le temps suivant : « tsss-tchk ». Raccourcis le <b>déclin</b> : c'est comme si le pied refermait le charley plus tôt.</p>`},
+    tomh:{file:'tom-aigu', dur:1.4, decay:1.4, dmin:.1, dmax:1.4, level:.8, x:1, xl:'Brillance (filtre)', hz:false,
+      recette:['Enregistrement','Coup au centre de la peau'],
+      aide:`<p>Un fût avec une peau qu'on <b>accorde</b> avec des clés. Juste après le coup, la peau est plus tendue : la hauteur <b>descend</b> légèrement, on l'entend bien sur ce tom.</p><p>Les toms servent surtout aux <b>roulements</b> (les <i>fills</i>) qui annoncent une nouvelle partie du morceau.</p>`},
+    toml:{file:'tom-basse', dur:2, decay:2, dmin:.1, dmax:2, level:.85, x:1, xl:'Brillance (filtre)', hz:false,
+      recette:['Enregistrement','Grande peau grave'],
+      aide:`<p>Le plus grave des toms, posé au sol à côté du batteur : on l'appelle aussi <i>floor tom</i>. Sa grande peau, accordée bas, résonne longtemps.</p>`},
+    crash:{file:'crash', dur:4, decay:4, dmin:.3, dmax:4, level:.6, x:1, xl:'Brillance (filtre)', hz:false,
+      recette:['Enregistrement','Grande cymbale fine'],
+      aide:`<p>Une grande cymbale fine qu'on frappe sur le bord pour <b>marquer un début</b> : un refrain, la fin d'un roulement. Elle s'éteint très lentement.</p><p>Pour l'arrêter net, le batteur attrape la cymbale avec la main : c'est ce que fait le curseur <b>Déclin</b> quand tu le raccourcis.</p>`},
+    bell:{file:'cloche', dur:.8, decay:.8, dmin:.06, dmax:.8, level:.45, x:1, xl:'Brillance (filtre)', hz:false,
+      recette:['Enregistrement','Cloche en métal'],
+      aide:`<p>Une vraie <b>cloche</b> en métal (en anglais <i>cowbell</i>), frappée à la baguette. Contrairement aux cymbales, elle n'a que quelques fréquences fortes : on entend presque une note.</p><p>Elle est très présente dans la salsa, la musique latine et le funk.</p>`},
   },
   bit:{
     kick:{base:50, decay:.18, dmin:.05, dmax:.6, level:.8, x:.6, xl:'Chute de hauteur',
@@ -480,69 +480,32 @@ function chokeHat(c,choke,t,d,open){
   if(open) openHats.push({choke,start:t,end:t+d});
   else { openHats.forEach(h=>{ if(h.start<=t && h.end>t) h.choke.gain.setTargetAtTime(0,t,.008); }); openHats=openHats.filter(h=>h.start>t); }
 }
-function sine(c,dest,t,f,peak,a,d,f0,bend){ const o=osc(c,'sine',f0||f,t,a+d); if(f0) o.frequency.exponentialRampToValueAtTime(f,t+(bend||.06)); o.connect(vca(c,dest,t,peak,a,d)); }
-function nz(c,dest,t,type,f,q,peak,a,d){ const n=noise(c,t,a+d), b=filt(c,type,f,q); n.connect(b); b.connect(vca(c,dest,t,peak,a,d)); }
-const CYM=[1,1.47,1.89,2.37,2.81,3.36,3.94,4.52,5.13,5.87,6.62,7.4,8.29,9.1];
-function cymbal(c,dest,t,f,d,gain){ const m=c.createGain(); m.gain.value=gain; CYM.forEach((r,j)=>{ const o=osc(c,'sine',f*r*(1+.013*Math.sin(j*7.1)),t,d); o.connect(m); }); m.connect(dest); }
-
-/* --- kit acoustique --- */
-const ACOU = {
-  kick(c,out,t,p,v,s){ const f=s.base*2**(p.tune/12), d=p.decay, L=p.level*v;
-    sine(c,out,t,f,L,.002,d,f*1.5,.04);
-    sine(c,out,t,f*2.1,L*.22,.002,d*.3,f*2.6,.03);
-    nz(c,out,t,'lowpass',1500+6000*p.x,.8,L*(.3+.5*p.x),.0008,.012);
-    nz(c,out,t,'lowpass',180,.7,L*.25,.004,d*.6);
-    return d+.02; },
-  snare(c,out,t,p,v,s){ const f=s.base*2**(p.tune/12), d=p.decay, L=p.level*v;
-    sine(c,out,t,f,L*.55,.001,d*.3,f*1.12,.03);
-    sine(c,out,t,f*1.6,L*.3,.001,d*.2);
-    nz(c,out,t,'bandpass',4800,.55,L*(.25+1.1*p.x),.002,d);
-    nz(c,out,t,'highpass',5000,.7,L*.45,.0005,.012);
-    return d+.02; },
-  rim(c,out,t,p,v,s){ const f=s.base*2**(p.tune/12), d=p.decay, L=p.level*v;
-    nz(c,out,t,'bandpass',f*4,6,L*2.2,.0005,d);
-    sine(c,out,t,f,L*.55,.0005,d*.8);
-    sine(c,out,t,f*1.73,L*.35,.0005,d*.5);
-    return d+.02; },
-  clap(c,out,t,p,v,s){ const f=s.base*2**(p.tune/12), d=p.decay, L=p.level*v*2.6, sp=.007+.013*p.x;
-    const offs=[0,1,2.3,3.1], n=noise(c,t,4*sp+d), b=filt(c,'bandpass',f,.9), g=c.createGain(); n.connect(b); b.connect(g); g.connect(out);
-    const G=g.gain; G.setValueAtTime(.0001,t);
-    offs.forEach((o,i)=>{ const tt=t+o*sp; G.setValueAtTime(L*(1.3-.15*i),tt); G.exponentialRampToValueAtTime(L*.1,tt+sp*.7); });
-    const t4=t+3.1*sp+sp*.75; G.setValueAtTime(L*.5,t4); G.exponentialRampToValueAtTime(.0001,t4+d);
-    return 4*sp+d+.02; },
-  hhc(c,out,t,p,v,s){ return ahat(c,out,t,p,v,false); },
-  hho(c,out,t,p,v,s){ return ahat(c,out,t,p,v,true); },
-  tomh(c,out,t,p,v,s){ return atom(c,out,t,p,v,s); },
-  toml(c,out,t,p,v,s){ return atom(c,out,t,p,v,s); },
-  crash(c,out,t,p,v,s){ const k=2**(p.tune/12), d=p.decay, L=p.level*v*.85;
-    const g=c.createGain(); g.connect(out); const G=g.gain;
-    G.setValueAtTime(.0001,t); G.exponentialRampToValueAtTime(L,t+.006); G.exponentialRampToValueAtTime(L*.45,t+.12); G.exponentialRampToValueAtTime(.0001,t+d);
-    const hp=filt(c,'highpass',(1500+3000*p.x)*k); hp.connect(g);
-    const n=noise(c,t,d), b=filt(c,'bandpass',6500*Math.min(k,1.5),.35); n.connect(b); b.connect(hp);
-    cymbal(c,hp,t,420*k,d,.12);
-    return d+.02; },
-  bell(c,out,t,p,v,s){ const f=s.base*2**(p.tune/12), d=p.decay, L=p.level*v*.6;
-    [[1,1,1],[1.51,.7,.8],[2.39,.35,.5],[3.13,.22,.3]].forEach(([r,a,dd])=>sine(c,out,t,f*r,L*a,.001,d*dd));
-    nz(c,out,t,'bandpass',3200,2,L*.4,.0005,.015);
-    return d+.02; },
-};
-function ahat(c,out,t,p,v,open){
-  const k=2**(p.tune/12), d=p.decay, L=p.level*v*.9;
-  const choke=c.createGain(); choke.connect(out);
-  const g=vca(c,choke,t,L,.001,d);
-  const hp=filt(c,'highpass',(4500+4500*p.x)*Math.min(k,1.4)); hp.connect(g);
-  const n=noise(c,t,d), b=filt(c,'bandpass',9000,.5); n.connect(b); b.connect(hp);
-  cymbal(c,hp,t,1150*k,d,.1);
-  if(!open) nz(c,choke,t,'bandpass',2800,1.5,L*.15,.0005,.01);
-  chokeHat(c,choke,t,d,open);
-  return d+.02;
+/* --- kit acoustique : vrais enregistrements (Virtuosity Drums, Versilian Studios, CC0) --- */
+const BUF={};
+function loadSamples(){
+  SND.forEach((_,i)=>{ const s=SD(i,'acou'); if(!s.file||BUF[s.file]) return; BUF[s.file]='…';
+    fetch('sons/acoustique/'+s.file+'.mp3').then(r=>r.arrayBuffer()).then(ab=>new Promise((ok,ko)=>AC.decodeAudioData(ab,ok,ko)))
+      .then(b=>{ BUF[s.file]=b; if(S.kit==='acou' && SD(S.sel).file===s.file) renderSound(); })
+      .catch(()=>{ BUF[s.file]=null; }); });
 }
-function atom(c,out,t,p,v,s){ const f=s.base*2**(p.tune/12), d=p.decay, L=p.level*v;
-  sine(c,out,t,f,L,.002,d,f*(1+.6*p.x),.09);
-  sine(c,out,t,f*1.59,L*.32,.002,d*.45,f*1.59*(1+.4*p.x),.07);
-  sine(c,out,t,f*2.14,L*.16,.002,d*.28);
-  nz(c,out,t,'bandpass',f*7,1,L*.3,.0008,.02);
-  return d+.02; }
+function sample(c,out,t,p,v,s,choke,open){
+  const b=BUF[s.file]; if(!b||typeof b==='string') return .1;
+  const rate=2**(p.tune/12), d=Math.min(p.decay,b.duration/rate), L=p.level*v*1.25;
+  const src=c.createBufferSource(); src.buffer=b; src.playbackRate.value=rate;
+  const lp=filt(c,'lowpass',300*Math.pow(70,p.x),.7);
+  const g=c.createGain(); g.gain.setValueAtTime(L,t); g.gain.setValueAtTime(L,t+d*.45); g.gain.linearRampToValueAtTime(0,t+d);
+  src.connect(lp); lp.connect(g);
+  if(choke){ const ch=c.createGain(); g.connect(ch); ch.connect(out); chokeHat(c,ch,t,d,open); } else g.connect(out);
+  src.start(t); src.stop(t+d+.02);
+  return d;
+}
+const ACOU = {
+  kick:(c,o,t,p,v,s)=>sample(c,o,t,p,v,s),  snare:(c,o,t,p,v,s)=>sample(c,o,t,p,v,s), rim:(c,o,t,p,v,s)=>sample(c,o,t,p,v,s),
+  clap:(c,o,t,p,v,s)=>VOICE.clap(c,o,t,p,v,s),
+  hhc:(c,o,t,p,v,s)=>sample(c,o,t,p,v,s,true,false), hho:(c,o,t,p,v,s)=>sample(c,o,t,p,v,s,true,true),
+  tomh:(c,o,t,p,v,s)=>sample(c,o,t,p,v,s), toml:(c,o,t,p,v,s)=>sample(c,o,t,p,v,s),
+  crash:(c,o,t,p,v,s)=>sample(c,o,t,p,v,s), bell:(c,o,t,p,v,s)=>sample(c,o,t,p,v,s),
+};
 
 /* --- kit 8 bits --- */
 const NB8 = new WeakMap();
@@ -758,7 +721,7 @@ function select(i){
   lblEls.forEach((l,r)=>l.classList.toggle('sel',r===i));
   const s=SD(i);
   $('m-snd').style.setProperty('--c',s.col); $('v-snd').style.setProperty('--c',s.col);
-  $('snd-name').textContent=s.nom; $('snd-kit').textContent='kit '+KITS[S.kit].nom.toLowerCase(); $('kit-nom').textContent='Kit '+KITS[S.kit].nom.toLowerCase(); $('kit-desc').textContent=KITS[S.kit].desc; $('kitSel').value=S.kit;
+  $('snd-name').textContent=s.nom; $('snd-kit').textContent='kit '+KITS[S.kit].nom.toLowerCase(); $('kit-nom').textContent='Kit '+KITS[S.kit].nom.toLowerCase(); $('kit-desc').innerHTML=KITS[S.kit].desc; $('kitSel').value=S.kit;
   $('snd-recette').innerHTML=s.recette.map(r=>`<span>${r}</span>`).join('<span class="plus">+</span>');
   $('snd-aide').innerHTML=s.aide;
   const box=$('snd-sliders'); box.innerHTML=''; box.className='two';
@@ -873,6 +836,7 @@ $('listenBtn').addEventListener('click',()=>{ audioOn(); play(S.sel,AC.currentTi
 $('resetBtn').addEventListener('click',()=>{ SP[S.sel]=defParams(S.sel); markCustom(); select(S.sel); });
 
 /* --- kits --- */
+loadSamples();
 function setKit(k){ if(!KITS[k]) return; S.kit=k; SP=SPK[k]; openHats=[]; select(S.sel); save(); }
 $('kitSel').addEventListener('change',e=>{ setKit(e.target.value); audioOn(); play(S.sel,AC.currentTime+.01,.9); flash(S.sel); });
 

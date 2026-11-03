@@ -1,0 +1,9 @@
+Sons du kit acoustique
+
+Extraits de « Virtuosity Drums » de Versilian Studios
+(https://github.com/sfzinstruments/virtuosity_drums),
+enregistrés chez Virtuosity Musical Instruments (Boston), joués par Austin McMahon.
+Licence : CC0 1.0 (domaine public).
+
+Un seul coup par instrument, mélange micro de proximité + micros au-dessus de la batterie,
+converti en MP3 mono 96 kbit/s.
