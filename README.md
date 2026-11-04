@@ -37,9 +37,7 @@ Une seule page (`index.html`), sans dépendance : les kits électronique et 8 bi
 
 ## Licences
 
+- **Tout le projet** (code, textes, exercices, schémas, partitions) : © 2026 Mickael Le Van, **tous droits réservés** (voir [`LICENSE`](LICENSE)). Reproduction, diffusion et usage commercial interdits sans autorisation écrite de l’auteur. Les éléments de tiers cités restent sous leur propre licence.
 - Sons du kit acoustique : extraits de [Virtuosity Drums](https://github.com/sfzinstruments/virtuosity_drums) de Versilian Studios, sous licence CC0 (domaine public). Voir `sons/acoustique/LISEZ-MOI.txt`.
-
-- Code : licence MIT (voir `LICENSE`).
-- Textes pédagogiques : CC BY-SA 4.0 (voir `LICENCE-CONTENU.md`).
 
 © 2026 Mickael Le Van
