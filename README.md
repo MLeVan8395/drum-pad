@@ -20,9 +20,9 @@ Il fonctionne ensuite **hors ligne** et se met à jour tout seul à chaque ouver
 
 | Partie | Ce qu'on fait | Ce qu'on apprend |
 |---|---|---|
-| **10 grands pads** | Grosse caisse, caisse claire, cercle, clap, charley fermé et ouvert, tom aigu, tom basse, crash, cloche. Au doigt ou au clavier (A Z E R T / Q S D F G) | Le rôle de chaque élément de la batterie |
+| **12 grands pads** | Grosse caisse, caisse claire, cercle, clap, charley fermé, ouvert et au pied, tom aigu, tom basse, ride, crash, cloche. Au doigt ou au clavier (A Z E R T Y / Q S D F G H) | Le rôle de chaque élément de la batterie |
 | **Séquenceur** (volet à ouvrir) | Une mesure en doubles croches, comptée « 1 ti ke ta, 2 ti ke ta… ». Notes et accents, tempo, swing, métronome, enregistrement en direct depuis les pads | Temps, contretemps, subdivisions, accents, binaire et ternaire |
-| **Rythmes de départ** | Rock, disco / house, funk, hip-hop, trap, shuffle blues, reggae, bossa nova, grille vide | Les grooves de base des styles, avec une explication pour chacun |
+| **Rythmes de départ** | Rock, disco / house, funk, hip-hop, trap, shuffle blues, reggae one drop, reggae stepper, jazz swing, bossa nova, grille vide | Les grooves de base des styles, avec une explication pour chacun |
 | **3 kits** | Acoustique (vrais enregistrements), électronique (boîtes à rythmes des années 80), 8 bits (consoles de jeux vidéo) | Le même instrument fabriqué de trois façons : on compare les sons |
 | **Partition** (volet à ouvrir) | Le rythme du séquenceur écrit en notation de batterie, mise à jour en direct, avec le comptage « 1 ti ke ta » et une barre qui suit la lecture | Le lien avec la FM : lire et écrire un rythme de batterie (durées, silences, accents, portée de percussion) |
 | **Réglage du son** (volet à ouvrir) | La « recette » du son (oscillateurs, bruit, filtre, enveloppe), sa forme d'onde, et ses réglages : hauteur, déclin, volume, plus un réglage propre à chaque son | Une batterie électronique fabrique ses sons avec les briques d'un synthétiseur |
