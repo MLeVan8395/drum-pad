@@ -35,6 +35,10 @@ Pour aller plus loin sur les oscillateurs, filtres et enveloppes : le [mini-synt
 
 Une seule page (`index.html`), sans dépendance : les kits électronique et 8 bits sont synthétisés en direct avec la Web Audio API ; le kit acoustique utilise de courts enregistrements (dossier `sons/acoustique`, environ 170 Ko). `manifest.webmanifest` et `sw.js` en font une appli installable qui marche hors ligne. Aucune donnée n'est collectée.
 
+## Clavier MIDI
+
+Avec Chrome ou Edge (ordinateur) ou Chrome (Android), branche un clavier ou un contrôleur à pads en USB et touche **🎹 Clavier MIDI** : les notes suivent la norme General MIDI (Do = grosse caisse, Ré = caisse claire, Fa♯ = charleston…), avec la vélocité. **Apprendre un bouton** relie un potard ou un fader du contrôleur à n'importe quel curseur. Pas disponible sur iPad / iPhone (Apple ne le permet pas).
+
 ## Licences
 
 - **Tout le projet** (code, textes, exercices, schémas, partitions) : © 2026 Mickael Le Van, **tous droits réservés** (voir [`LICENSE`](LICENSE)). Reproduction, diffusion et usage commercial interdits sans autorisation écrite de l’auteur. Les éléments de tiers cités restent sous leur propre licence.

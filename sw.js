@@ -2,7 +2,7 @@
 // Page et manifeste : version en ligne d'abord (les modifications faites sur GitHub arrivent tout de suite),
 // copie enregistrée si pas de connexion. Icônes et polices : copie enregistrée d'abord.
 // Si tu ajoutes un fichier, ajoute-le à FICHIERS et change VERSION.
-const VERSION='drum-pad-6';
+const VERSION='drum-pad-7';
 const FICHIERS=["./","index.html","manifest.webmanifest","icones/icone-192.png","icones/icone-512.png","icones/apple-touch-icon.png","sons/acoustique/grosse-caisse.mp3","sons/acoustique/caisse-claire.mp3","sons/acoustique/cercle.mp3","sons/acoustique/charley-ferme.mp3","sons/acoustique/charley-ouvert.mp3","sons/acoustique/tom-aigu.mp3","sons/acoustique/tom-basse.mp3","sons/acoustique/crash.mp3","sons/acoustique/cloche.mp3","sons/acoustique/ride.mp3","sons/acoustique/charley-pied.mp3"];
 self.addEventListener('install',e=>{ e.waitUntil(caches.open(VERSION).then(c=>c.addAll(FICHIERS)).then(()=>self.skipWaiting())); });
 self.addEventListener('activate',e=>{ e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==VERSION).map(k=>caches.delete(k)))).then(()=>self.clients.claim())); });
