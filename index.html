@@ -84,6 +84,8 @@ input[type=range]:focus-visible{outline:2px solid var(--c);outline-offset:2px;bo
 .cell.b{background:#20232b}
 .cell.v1{background:color-mix(in srgb,var(--c) 50%,#20232b)}
 .cell.v2{background:var(--c);box-shadow:0 0 8px color-mix(in srgb,var(--c) 60%,transparent)}
+.cell.v3{background:color-mix(in srgb,var(--c) 22%,#20232b);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--c) 55%,transparent)}
+.cell.v3::after{content:'( )';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:10px;color:var(--c)}
 .cell.v2::after{content:'>';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:11px;font-weight:600;color:#121419}
 .cell.now{border-color:#fff}
 .srow.count span{font-family:var(--mono);font-size:11px;color:var(--muted);text-align:center;border-radius:4px;padding:2px 0}
@@ -173,7 +175,7 @@ footer a{color:inherit}
     <span class="bpm" id="bpmLbl">100 bpm</span>
     <button id="bpmUp" aria-label="Tempo plus rapide">+</button>
     <button id="recBtn" aria-pressed="false">● Enregistrer</button>
-    <label class="kit">Kit <select id="kitSel" aria-label="Choix du kit"><option value="acou">Acoustique</option><option value="elec">Électronique</option><option value="bit">8 bits</option></select></label>
+    <label class="kit">Kit <select id="kitSel" aria-label="Choix du kit"><option value="acou">Acoustique</option><option value="rock">Rock</option><option value="elec">Électronique</option><option value="bit">8 bits</option></select></label>
     <button id="seqBtn" aria-pressed="false">Séquenceur</button>
     <span class="startnote" id="startnote">Touche un pad pour activer le son</span>
     <span class="hint">Clavier : A Z E R T Y / Q S D F G H · Espace = lecture</span>
@@ -192,7 +194,7 @@ footer a{color:inherit}
         <p class="pdesc" id="pdesc"></p>
       </section>
       <section class="card" id="m-seq" style="--c:var(--seq)">
-      <p class="sub">Une mesure à 4 temps, chaque temps coupé en 4 doubles croches. Touche une case : <b>note</b>, puis <b>accent</b> (&gt;), puis vide.</p>
+      <p class="sub">Une mesure à 4 temps, chaque temps coupé en 4 doubles croches. Touche une case : <b>note</b>, puis <b>accent</b> (&gt;), puis <b>note fantôme</b> ( ), puis vide.</p>
       <div class="seqwrap"><div class="seq" id="seq"></div></div>
       <div class="two">
         <div id="sl-bpm"></div>
@@ -219,6 +221,7 @@ footer a{color:inherit}
           <li><b>Caisse claire</b> : souvent sur 2 et 4, le <b>contretemps</b> (en anglais <i>backbeat</i>) qui fait bouger la tête.</li>
           <li><b>Charley</b> : il découpe le temps en croches ou en doubles croches, c'est l'horloge du groupe.</li>
           <li><b>Accent</b> (&gt;) : la note est jouée plus fort. Joue un charley avec un accent sur chaque temps, puis sans : le groove change.</li>
+          <li><b>Note fantôme</b> ( ) : une note jouée tout doucement, qu'on sent plus qu'on ne l'entend (en anglais <i>ghost note</i>). Sur la partition, elle est entre parenthèses. Indispensable en funk !</li>
           <li><b>Swing</b> : à 0 %, tout est régulier (binaire). En montant, la deuxième croche (ou double croche) de chaque paire arrive plus tard. À 100 %, elle tombe sur le dernier tiers du temps : c'est le <b>ternaire</b> du blues et du jazz.</li>
           <li><b>Enregistrer</b> (au-dessus des pads) : pendant la lecture, ce que tu joues sur les pads s'écrit tout seul dans la grille, recalé sur la case la plus proche.</li>
         </ul>
@@ -239,7 +242,7 @@ footer a{color:inherit}
           <li><b>Hampes vers le haut</b> : ce que jouent les mains (caisse claire, charley, toms, cymbales). <b>Hampes vers le bas</b> : ce que joue le pied (grosse caisse).</li>
           <li><b>Têtes rondes</b> pour les peaux (caisse claire, toms, grosse caisse), <b>croix</b> pour les cymbales et le métal.</li>
           <li>Les durées sont celles de la FM : <b>noire</b>, <b>croche</b> (un crochet ou une barre), <b>double croche</b> (deux crochets ou deux barres), <b>croche pointée</b>. Les silences : <b>soupir</b> (un temps), <b>demi-soupir</b>, <b>quart de soupir</b>.</li>
-          <li><b>&gt;</b> au-dessus d'une note : un <b>accent</b>. Un petit <b>o</b> au-dessus du charley : il est <b>ouvert</b>.</li>
+          <li><b>&gt;</b> au-dessus d'une note : un <b>accent</b>. Une note <b>entre parenthèses</b> : une <b>note fantôme</b>, jouée tout doucement. Un petit <b>o</b> au-dessus du charley : il est <b>ouvert</b>.</li>
           <li>Les barres de <b>reprise</b> au début et à la fin : la mesure tourne en boucle, comme dans le séquenceur.</li>
         </ul>
         <p>Essaie : ajoute ou enlève une case dans le séquenceur et regarde comment les durées et les silences changent sur la partition.</p>
@@ -275,7 +278,7 @@ footer a{color:inherit}
     </div>
   </details>
 </main>
-<footer><p>Drum pad pédagogique · © 2026 Mickael Le Van – tous droits réservés (reproduction et usage commercial interdits) · sons du kit acoustique : <a href="https://github.com/sfzinstruments/virtuosity_drums">Virtuosity Drums</a> (Versilian Studios, CC0) · aucune donnée collectée. Au casque, la grosse caisse s'entend bien mieux.</p></footer>
+<footer><p>Drum pad pédagogique · © 2026 Mickael Le Van – tous droits réservés (reproduction et usage commercial interdits) · sons du kit acoustique : <a href="https://github.com/sfzinstruments/virtuosity_drums">Virtuosity Drums</a> (Versilian Studios, CC0) ; kit rock : <a href="https://github.com/sfzinstruments/SMDrums">SM Drums</a> (domaine public) · aucune donnée collectée. Au casque, la grosse caisse s'entend bien mieux.</p></footer>
 
 <script>
 /* ================= LES SONS ================= */
@@ -319,6 +322,7 @@ const SND = [
 ];
 const KITS = {
   acou:{nom:'Acoustique', desc:`De <b>vrais enregistrements</b> d'une batterie de jazz (on dit des <i>échantillons</i>, en anglais <i>samples</i>). Changer la hauteur d'un échantillon, c'est le lire plus vite ou plus lentement : il devient aussi plus court ou plus long. Sons : Virtuosity Drums, Versilian Studios (domaine public).`},
+  rock:{nom:'Rock', desc:`De <b>vrais enregistrements</b> d'une batterie <b>rock</b> : grosse caisse et caisse claire qui claquent, cymbales brillantes. Compare avec le kit acoustique (une batterie de jazz) : même instrument, mais accordé, frappé et enregistré autrement. Sons : SM Drums (domaine public).`},
   elec:{nom:'Électronique', desc:`Les boîtes à rythmes des années 80 (comme la célèbre TR-808) : tous les sons sont fabriqués avec des oscillateurs, du bruit et des filtres, comme sur un synthétiseur.`},
   bit:{nom:'8 bits', desc:`Les sons des consoles de jeux vidéo des années 80 : seulement des ondes carrées, une onde triangle et un bruit très granuleux.`},
 };
@@ -401,6 +405,11 @@ const KDEF = {
   },
 };
 const ROWS = SND.length;
+// kit rock : mêmes réglages et explications que le kit acoustique, autres enregistrements
+(()=>{ const R={kick:['grosse-caisse',1,1],snare:['caisse-claire',1.1,.95],rim:['cercle',.5,.85],hhc:['charley-ferme',.5,.75],hho:['charley-ouvert',1.8,.7],
+  tomh:['tom-aigu',1.5,.85],toml:['tom-basse',1.8,.9],crash:['crash',3.5,.55],bell:['cloche',2.5,.5],ride:['ride',3,.6],hhp:['charley-pied',.6,.55]};
+  KDEF.rock={}; Object.entries(KDEF.acou).forEach(([id,o])=>{ const r=R[id];
+    KDEF.rock[id]= r ? {...o, file:'rock/'+r[0], dur:r[1], decay:r[1], dmax:r[1], level:r[2], recette:['Enregistrement','Batterie rock']} : {...o}; }); })();
 const IDX = Object.fromEntries(SND.map((s,i)=>[s.id,i]));
 const S = {kit:'elec', bpm:100, swing:0, res:8, metro:false, rec:false, sel:IDX.snare, master:.8, preset:'rock'};
 const SD = (i,kit=S.kit) => Object.assign({},SND[i],KDEF[kit][SND[i].id]||{});
@@ -424,7 +433,7 @@ const PRESETS = {
     p:{kick:'X...X...X...X...', snare:'....x.......x...', clap:'....X.......X...', hhc:'x...x...x...x...', hho:'..x...x...x...x.'},
     d:`<b>Disco / house</b> : la grosse caisse sur chaque temps (on dit « four on the floor »), le charley ouvert sur chaque « ke », et clap + caisse claire ensemble sur 2 et 4.`},
   funk:{nom:'Funk', kit:'acou', bpm:96, swing:0, res:16,
-    p:{kick:'X.x.......x..x..', snare:'....X..x.x..X..x', hhc:'XxxxXxxxXxxxXxxx'},
+    p:{kick:'X.x.......x..x..', snare:'....X..g.g..X..g', hhc:'XxxxXxxxXxxxXxxx'},
     d:`<b>Funk</b> : charley en doubles croches avec un accent sur chaque temps, grosse caisse syncopée, et des petites notes douces de caisse claire (les <i>ghost notes</i>) autour des accents du 2 et du 4.`},
   hiphop:{nom:'Hip-hop', kit:'elec', bpm:88, swing:.55, res:16,
     p:{kick:'X......x..X.....', snare:'....X.......X...', hhc:'x.xxx.x.x.xxx.xx'},
@@ -450,6 +459,13 @@ const PRESETS = {
   bossa:{nom:'Bossa nova', kit:'acou', bpm:70, swing:0, res:16,
     p:{kick:'x..xx..xx..xx..x', rim:'X..X..X...X..X..', hhc:'xxxxxxxxxxxxxxxx'},
     d:`<b>Bossa nova</b> : ici chaque case vaut une <b>croche</b> (la grille fait deux mesures à 2 temps). Le cercle joue la clave de la bossa, la grosse caisse balance comme une ligne de basse, le charley est régulier comme un shaker.`},
+  country:{nom:'Country (train beat)', kit:'rock', bpm:112, swing:0, res:16,
+    p:{kick:'X.......X.......', snare:'ggXgggXgggXgggXg', hhp:'....x.......x...'},
+    snd:{snare:{decay:.45}},
+    d:`<b>Country (train beat)</b> : la caisse claire joue <b>toutes les doubles croches</b>, presque toutes en notes fantômes, avec un accent sur chaque « ke ». On croirait entendre un train qui roule ! Grosse caisse sur 1 et 3, charley au pied sur 2 et 4.`},
+  dnb:{nom:'Drum and bass', kit:'rock', bpm:172, swing:0, res:16,
+    p:{kick:'X.........X.....', snare:'....X..g....X..g', hhc:'x.x.x.x.x.x.x.xx'},
+    d:`<b>Drum and bass</b> : un tempo très rapide (172 bpm) mais un groove qui reste léger. Grosse caisse sur le 1 et le « ke » du 3, caisse claire sur 2 et 4 avec des notes fantômes : un rythme « cassé » (<i>breakbeat</i>) hérité des disques de funk accélérés.`},
   vide:{nom:'Grille vide', bpm:100, swing:0, res:8, p:{},
     d:`<b>À toi de composer !</b> Touche les cases du séquenceur, ou lance la lecture, active <b>Enregistrer</b> et joue sur les pads.`},
 };
@@ -549,10 +565,10 @@ function chokeHat(c,choke,t,d,open){
 /* --- kit acoustique : vrais enregistrements (Virtuosity Drums, Versilian Studios, CC0) --- */
 const BUF={};
 function loadSamples(){
-  SND.forEach((_,i)=>{ const s=SD(i,'acou'); if(!s.file||BUF[s.file]) return; BUF[s.file]='…';
-    fetch('sons/acoustique/'+s.file+'.mp3').then(r=>r.arrayBuffer()).then(ab=>new Promise((ok,ko)=>AC.decodeAudioData(ab,ok,ko)))
-      .then(b=>{ BUF[s.file]=b; if(S.kit==='acou' && SD(S.sel).file===s.file) renderSound(); })
-      .catch(()=>{ BUF[s.file]=null; }); });
+  ['acou','rock'].forEach(kit=>SND.forEach((_,i)=>{ const s=SD(i,kit); if(!s.file||BUF[s.file]) return; BUF[s.file]='…';
+    fetch('sons/'+(s.file.includes('/')?s.file:'acoustique/'+s.file)+'.mp3').then(r=>r.arrayBuffer()).then(ab=>new Promise((ok,ko)=>AC.decodeAudioData(ab,ok,ko)))
+      .then(b=>{ BUF[s.file]=b; if(SD(S.sel).file===s.file) renderSound(); })
+      .catch(()=>{ BUF[s.file]=null; }); }));
 }
 function sample(c,out,t,p,v,s,choke,open){
   const b=BUF[s.file]; if(!b||typeof b==='string') return .1;
@@ -608,7 +624,7 @@ function bhat(c,out,t,p,v,open,rt){ const k=2**(p.tune/12), d=p.decay, L=p.level
   const choke=c.createGain(); choke.connect(out); bnz(c,choke,t,(rt||2.5)*k,L,d,rt?3000:5000); chokeHat(c,choke,t,d,open); return d+.01; }
 function btom(c,out,t,p,v,s){ const f=s.base*2**(p.tune/12), d=p.decay, L=p.level*v*.9;
   const o=osc(c,'triangle',f*(1+2*p.x),t,d); o.frequency.exponentialRampToValueAtTime(f,t+d*.8); o.connect(vca(c,out,t,L,.001,d)); return d+.01; }
-const VOICES = {elec:VOICE, acou:ACOU, bit:BIT};
+const VOICES = {elec:VOICE, acou:ACOU, rock:ACOU, bit:BIT};
 
 let lastPlay=null; // {t, dur} du son sélectionné
 function play(i,t,vel){
@@ -619,6 +635,7 @@ function play(i,t,vel){
 function audioOn(){ if(AC.state!=='running') AC.resume(); document.getElementById('startnote').classList.remove('show'); }
 
 /* ================= SÉQUENCEUR (horloge) ================= */
+const DVEL=[0,.62,1,.16];
 let playing=false, curStep=0, nextTime=0, timer=null;
 const vq=[], sched=[], skip=new Set();
 const stepDur=()=>60/S.bpm/4;
@@ -632,7 +649,7 @@ function scheduleStep(step,t){
   for(let r=0;r<ROWS;r++){
     const v=pat[r][step], key=r+'_'+step;
     if(skip.has(key)){ skip.delete(key); continue; }
-    if(v){ play(r,t,v===2?1:.62); hits.push(r); }
+    if(v){ play(r,t,DVEL[v]); hits.push(r); }
   }
   if(S.metro && step%4===0){
     const o=osc(AC,'sine',step===0?2000:1400,t,.04); o.connect(vca(AC,master,t,.35,.001,.035));
@@ -717,7 +734,7 @@ function buildSeq(){
     row.appendChild(l); lblEls[r]=l; cellEls[r]=[];
     for(let j=0;j<16;j++){
       const c=document.createElement('button'); c.className='cell'+(Math.floor(j/4)%2?' b':'');
-      c.addEventListener('click',()=>{ pat[r][j]=(pat[r][j]+1)%3; paintCell(r,j); markCustom(); save(); if(pat[r][j] && !playing){ audioOn(); play(r,AC.currentTime,pat[r][j]===2?1:.62); flash(r); } });
+      c.addEventListener('click',()=>{ pat[r][j]=(pat[r][j]+1)%4; paintCell(r,j); markCustom(); save(); if(pat[r][j] && !playing){ audioOn(); play(r,AC.currentTime,DVEL[pat[r][j]]); flash(r); } });
       row.appendChild(c); cellEls[r][j]=c;
     }
     g.appendChild(row);
@@ -726,8 +743,8 @@ function buildSeq(){
 }
 function paintCell(r,j){
   const c=cellEls[r][j], v=pat[r][j];
-  c.classList.toggle('v1',v===1); c.classList.toggle('v2',v===2);
-  c.setAttribute('aria-label',`${SND[r].nom}, case ${j+1} (${COUNT[j]}) : ${['vide','note','accent'][v]}`);
+  c.classList.toggle('v1',v===1); c.classList.toggle('v2',v===2); c.classList.toggle('v3',v===3);
+  c.setAttribute('aria-label',`${SND[r].nom}, case ${j+1} (${COUNT[j]}) : ${['vide','note','accent','note fantôme'][v]}`);
 }
 function paintAll(){ for(let r=0;r<ROWS;r++) for(let j=0;j<16;j++) paintCell(r,j); }
 let nowCol=-1;
@@ -748,7 +765,7 @@ function buildPresets(){
 function loadPreset(k){
   const p=PRESETS[k]; S.preset=k; S.bpm=p.bpm; S.swing=p.swing; S.res=p.res;
   pat=Array.from({length:ROWS},()=>Array(16).fill(0));
-  Object.entries(p.p).forEach(([id,str])=>{ [...str].forEach((ch,j)=>{ pat[IDX[id]][j]= ch==='X'?2: ch==='x'?1:0; }); });
+  Object.entries(p.p).forEach(([id,str])=>{ [...str].forEach((ch,j)=>{ pat[IDX[id]][j]= ch==='X'?2: ch==='x'?1: ch==='g'?3:0; }); });
   if(p.kit) S.kit=p.kit;
   SPK[S.kit]=SND.map((_,i)=>defParams(i)); SP=SPK[S.kit];
   if(p.snd) Object.entries(p.snd).forEach(([id,o])=>Object.assign(SP[IDX[id]],o));
@@ -862,7 +879,7 @@ function encode(){
   return q.toString();
 }
 function decode(str){
-  const q=new URLSearchParams(str); const p=q.get('p'); if(!p||p.length%16||p.length>ROWS*16||/[^012]/.test(p)) return false;
+  const q=new URLSearchParams(str); const p=q.get('p'); if(!p||p.length%16||p.length>ROWS*16||/[^0123]/.test(p)) return false;
   S.bpm=Math.min(180,Math.max(50,+q.get('t')||100)); S.swing=Math.min(1,Math.max(0,(+q.get('sw')||0)/100)); S.res=q.get('res')==='16'?16:8;
   pat=Array.from({length:ROWS},(_,r)=>{ const seg=p.slice(r*16,r*16+16); return seg.length===16?[...seg].map(Number):Array(16).fill(0); });
   const s=(q.get('s')||'').split('~');
@@ -972,11 +989,12 @@ function drawVoice(g,ev,up){
   const chords=ev.filter(e=>!e.rest);
   // têtes + calcul des extrémités
   chords.forEach(e=>{
-    const ps=e.notes.map(n=>({...NOTA[n.id],id:n.id,acc:n.acc,col:SND[IDX[n.id]].col})).sort((a,b)=>a.pos-b.pos);
+    const ps=e.notes.map(n=>({...NOTA[n.id],id:n.id,acc:n.acc,g:n.g,col:SND[IDX[n.id]].col})).sort((a,b)=>a.pos-b.pos);
     e.x=xStep(e.step); e.lo=ps[0].pos; e.hi=ps[ps.length-1].pos;
     let prev=null, prevShift=false;
     ps.forEach(n=>{ let dx=0; if(prev && n.pos-prev.pos===1 && !prevShift){ dx=up?12:-12; prevShift=true; } else prevShift=false;
       if(prev && n.pos===prev.pos) dx=prev.dx; n.dx=dx; prev=n; drawHead(g,e.x+dx,n.pos,n.head,n.col);
+      if(n.g) [[-11,'('],[11,')']].forEach(([o,ch])=>{ const t=svgEl('text',{x:e.x+dx+o,y:yPos(n.pos)+4.5,'text-anchor':'middle','font-size':14,'font-family':'Georgia,serif',fill:'#c8ccd4'},g); t.textContent=ch; });
       if(e.dur===3){ const dy=(n.pos%2===0)?-sp/2:0; svgEl('circle',{cx:e.x+dx+11,cy:yPos(n.pos)+dy,r:2,fill:stemC},g); } });
     e.ps=ps; e.acc=ps.some(n=>n.acc); e.open=ps.some(n=>NOTA[n.id].open);
   });
@@ -1032,7 +1050,7 @@ function renderScore(){
   tt.textContent='♩ = '+S.bpm+sw;
   // voix
   const c1=Array(16).fill(null), c2=Array(16).fill(null);
-  SND.forEach((s,r)=>{ for(let j=0;j<16;j++) if(pat[r][j]){ const col= NOTA[s.id].voice===2?c2:c1; (col[j]=col[j]||[]).push({id:s.id,acc:pat[r][j]===2}); } });
+  SND.forEach((s,r)=>{ for(let j=0;j<16;j++) if(pat[r][j]){ const col= NOTA[s.id].voice===2?c2:c1; (col[j]=col[j]||[]).push({id:s.id,acc:pat[r][j]===2,g:pat[r][j]===3}); } });
   const has1=c1.some(Boolean), has2=c2.some(Boolean), g=svgEl('g',{},svg);
   if(!has1 && !has2){ const x=(SC.ns+SC.xe)/2; svgEl('rect',{x:x-9,y:top+sp,width:18,height:sp/2,fill:'#c8ccd4'},g); }
   if(has1) drawVoice(g,voiceEvents(c1),true);

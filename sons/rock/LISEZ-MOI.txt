@@ -1,0 +1,9 @@
+Kit « Rock » (repris de la Groovebox)
+
+Sons tirés de « SM Drums – Deeply Sampled Free Drums for the Masses »
+(Scott McLean, Tod Stillwell, Suleiman Ali), version SFZ publiée par
+sfzinstruments : https://github.com/sfzinstruments/SMDrums
+Licence : domaine public.
+
+Un seul échantillon par instrument a été retenu (couche de vélocité forte),
+coupé, normalisé et converti en MP3 pour un chargement rapide.

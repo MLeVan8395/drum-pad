@@ -22,8 +22,8 @@ Il fonctionne ensuite **hors ligne** et se met à jour tout seul à chaque ouver
 |---|---|---|
 | **12 grands pads** | Grosse caisse, caisse claire, cercle, clap, charley fermé, ouvert et au pied, tom aigu, tom basse, ride, crash, cloche. Au doigt ou au clavier (A Z E R T Y / Q S D F G H) | Le rôle de chaque élément de la batterie |
 | **Séquenceur** (volet à ouvrir) | Une mesure en doubles croches, comptée « 1 ti ke ta, 2 ti ke ta… ». Notes et accents, tempo, swing, métronome, enregistrement en direct depuis les pads | Temps, contretemps, subdivisions, accents, binaire et ternaire |
-| **Rythmes de départ** | Rock, disco / house, funk, hip-hop, trap, shuffle blues, reggae one drop, reggae stepper, jazz swing, bossa nova, grille vide | Les grooves de base des styles, avec une explication pour chacun |
-| **3 kits** | Acoustique (vrais enregistrements), électronique (boîtes à rythmes des années 80), 8 bits (consoles de jeux vidéo) | Le même instrument fabriqué de trois façons : on compare les sons |
+| **Rythmes de départ** | Rock, disco / house, funk, hip-hop, trap, shuffle blues, reggae one drop, reggae stepper, jazz swing, bossa nova, country (train beat), drum and bass, grille vide | Les grooves de base des styles, avec une explication pour chacun |
+| **4 kits** | Acoustique et rock (vrais enregistrements), électronique (boîtes à rythmes des années 80), 8 bits (consoles de jeux vidéo) | Le même instrument fabriqué de quatre façons : on compare les sons |
 | **Partition** (volet à ouvrir) | Le rythme du séquenceur écrit en notation de batterie, mise à jour en direct, avec le comptage « 1 ti ke ta » et une barre qui suit la lecture | Le lien avec la FM : lire et écrire un rythme de batterie (durées, silences, accents, portée de percussion) |
 | **Réglage du son** (volet à ouvrir) | La « recette » du son (oscillateurs, bruit, filtre, enveloppe), sa forme d'onde, et ses réglages : hauteur, déclin, volume, plus un réglage propre à chaque son | Une batterie électronique fabrique ses sons avec les briques d'un synthétiseur |
 
@@ -33,7 +33,7 @@ Pour aller plus loin sur les oscillateurs, filtres et enveloppes : le [mini-synt
 
 ## Technique
 
-Une seule page (`index.html`), sans dépendance : les kits électronique et 8 bits sont synthétisés en direct avec la Web Audio API ; le kit acoustique utilise de courts enregistrements (dossier `sons/acoustique`, environ 170 Ko). `manifest.webmanifest` et `sw.js` en font une appli installable qui marche hors ligne. Aucune donnée n'est collectée.
+Une seule page (`index.html`), sans dépendance : les kits électronique et 8 bits sont synthétisés en direct avec la Web Audio API ; les kits acoustique et rock utilisent de courts enregistrements (dossiers `sons/acoustique` et `sons/rock`). `manifest.webmanifest` et `sw.js` en font une appli installable qui marche hors ligne. Aucune donnée n'est collectée.
 
 ## Clavier MIDI
 
@@ -43,5 +43,6 @@ Avec Chrome ou Edge (ordinateur) ou Chrome (Android), branche un clavier ou un c
 
 - **Tout le projet** (code, textes, exercices, schémas, partitions) : © 2026 Mickael Le Van, **tous droits réservés** (voir [`LICENSE`](LICENSE)). Reproduction, diffusion et usage commercial interdits sans autorisation écrite de l’auteur. Les éléments de tiers cités restent sous leur propre licence.
 - Sons du kit acoustique : extraits de [Virtuosity Drums](https://github.com/sfzinstruments/virtuosity_drums) de Versilian Studios, sous licence CC0 (domaine public). Voir `sons/acoustique/LISEZ-MOI.txt`.
+- Sons du kit rock : extraits de [SM Drums](https://github.com/sfzinstruments/SMDrums) (Scott McLean, Tod Stillwell, Suleiman Ali), domaine public. Voir `sons/rock/LISEZ-MOI.txt`.
 
 © 2026 Mickael Le Van
